@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.js";
 import { orderRoutes } from "./routes/order.routes.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { userRoutes } from "./routes/user.routes.js";
+import { emailRoutes } from "./routes/email.routes.js";
 
 dotenv.config();
 
@@ -14,12 +15,17 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 connectDB();
-// Cors
-app.use(cors());
+
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+// Cors
+// Cors
+app.use(cors());
+app.use((req, res, next) => {
+	res.header("Access-Control-Allow-Origin", "*");
+	next();
+});
 // Logger setup
 winston.add(
 	new winston.transports.Console({
@@ -39,6 +45,9 @@ app.use("/api/v1/orders", orderRoutes);
 
 // user routes
 app.use("/api/v1/users", userRoutes);
+
+// email routes
+app.use("/api/v1/email", emailRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {

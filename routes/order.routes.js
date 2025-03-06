@@ -13,6 +13,6 @@ router.get("/all", getAllOrders);
 router.get("/:id", getOrderById);
 router.get("/customer/:id", getOrderByCustomer);
 
-router.get("/create", createOrder);
+router.post("/create", createOrder);
 
 export const orderRoutes = router;
