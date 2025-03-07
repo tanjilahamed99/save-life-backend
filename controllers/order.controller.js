@@ -37,7 +37,7 @@ export const createOrder = async (req, res) => {
 		phone,
 		items,
 	} = req.body;
-	console.log({ email });
+
 	// Calculate total amount and verify stock
 	let totalAmount = 0;
 	for (const item of items) {
@@ -67,3 +67,5 @@ export const createOrder = async (req, res) => {
 		message: "Order created successfully",
 	});
 };
+
+export const orderUpdate = async (req, res) => {};
