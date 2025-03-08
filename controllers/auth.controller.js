@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/user.model.js";
+import sendEmail from "../lib/email/sendEmail.js";
 
 // Register user
 export const register = async (req, res) => {
@@ -66,6 +67,100 @@ export const login = async (req, res) => {
 			res
 				.status(202)
 				.json({ status: false, message: "Invalid email or password" });
+		}
+	} catch (error) {
+		res.status(202).json({ status: false, message: error.message });
+	}
+};
+
+// forget password
+export const forgetPassword = async (req, res) => {
+	try {
+		const { email } = req.body;
+		console.log(email);
+		// Check for user email
+		const user = await UserModel.findOne({ email });
+		if (!user) {
+			return res.status(202).json({ status: false, message: "User not found" });
+		}
+		if (user) {
+			// 	// Generate OTP
+			const otp = Math.floor(100000 + Math.random() * 900000);
+
+			await sendEmail({
+				subject: "Password Reset OTP",
+				template_name: "otp_template",
+				otp,
+				email,
+				name: user.name,
+			});
+
+			// save otp to database
+			await UserModel.updateOne({ email }, { $set: { otp } });
+			res.status(200).json({ status: true, message: "OTP sent successfully" });
+		}
+		// if (user) {
+
+		// 	// Send OTP to user email
+		// 	await sendEmail({
+		// 		subject: "Password Reset OTP",
+		// 		template_name: "otp_template",
+		// 		otp,
+		// 		email,
+		// 		name: user.name,
+		// 	});
+
+		// }
+	} catch (error) {
+		res.status(202).json({ status: false, message: error.message });
+	}
+};
+
+// verify otp
+export const verifyOtp = async (req, res) => {
+	try {
+		const { email, otp } = req.body;
+		// Check for user email
+		const user = await UserModel.findOne({ email });
+		if (!user) {
+			return res.status(202).json({ status: false, message: "User not found" });
+		}
+		if (user) {
+			if (user.otp === otp) {
+				res
+					.status(200)
+					.json({ status: true, message: "OTP verified successfully" });
+			} else {
+				res.status(202).json({ status: false, message: "Invalid OTP" });
+			}
+		}
+	} catch (error) {
+		res.status(202).json({ status: false, message: error.message });
+	}
+};
+
+// reset password
+export const resetPassword = async (req, res) => {
+	try {
+		const { otp, email, password } = req.body;
+		// Check for user email
+		const user = await UserModel.findOne({ email, otp });
+		if (!user) {
+			return res.status(202).json({ status: false, message: "User not found" });
+		}
+		if (user) {
+			// Hash password
+			const salt = await bcrypt.genSalt(10);
+			const hashedPassword = await bcrypt.hash(password, salt);
+			// remove otp from database and update password
+
+			await UserModel.updateOne(
+				{ email },
+				{ $set: { password: hashedPassword }, $unset: { otp: "" } }
+			);
+			res
+				.status(200)
+				.json({ status: true, message: "Password reset successfully" });
 		}
 	} catch (error) {
 		res.status(202).json({ status: false, message: error.message });

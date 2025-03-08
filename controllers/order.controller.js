@@ -68,4 +68,43 @@ export const createOrder = async (req, res) => {
 	});
 };
 
-export const orderUpdate = async (req, res) => {};
+export const orderUpdate = async (req, res) => {
+	const {
+		id,
+		user,
+		email,
+		firstName,
+		lastName,
+		address,
+		city,
+		country,
+		postalCode,
+		phone,
+		items,
+	} = req.body;
+	// check order exist or not
+
+	const order = await OrderModel.findById(id);
+	if (!order) {
+		return res.send({ status: false, message: "Order not found" });
+	}
+
+	order.user = user;
+	order.email = email;
+	order.firstName = firstName;
+	order.lastName = lastName;
+	order.address = address;
+	order.city = city;
+	order.country = country;
+	order.postalCode = postalCode;
+	order.phone = phone;
+	order.items = items;
+	order.totalAmount = items.reduce(
+		(acc, item) => acc + item.price * item.quantity,
+		0
+	);
+
+	const updatedOrder = await order.save();
+
+	res.send({ status: true, data: updatedOrder, message: "Order updated" });
+};

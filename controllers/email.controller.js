@@ -25,14 +25,14 @@ export const paymentRequest = async (req, res) => {
 		return res.status(201).send({ status: false, message: "User not found" });
 	}
 	// // Send payment request email
-	await sendEmail(
-		"betaling voor zolpidem 10mg kopen", //subject
-		"payment_request", //template_name
+	await sendEmail({
+		subject: "betaling voor zolpidem 10mg kopen",
+		template_name: "payment_request_template",
 		pay_amount,
 		payment_url,
 		expiry_date,
-		email
-	);
+		email,
+	});
 
 	res.send({ status: true, message: "Payment email sent" });
 };
