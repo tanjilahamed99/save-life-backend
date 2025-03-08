@@ -122,11 +122,12 @@ export const verifyOtp = async (req, res) => {
 		const { email, otp } = req.body;
 		// Check for user email
 		const user = await UserModel.findOne({ email });
+
 		if (!user) {
-			return res.status(202).json({ status: false, message: "User not found" });
+			return res.status(202).json({ status: false, message: "Invalid OTP" });
 		}
 		if (user) {
-			if (user.otp === otp) {
+			if (user.otp == otp) {
 				res
 					.status(200)
 					.json({ status: true, message: "OTP verified successfully" });
@@ -141,29 +142,25 @@ export const verifyOtp = async (req, res) => {
 
 // reset password
 export const resetPassword = async (req, res) => {
-	try {
-		const { otp, email, password } = req.body;
-		// Check for user email
-		const user = await UserModel.findOne({ email, otp });
-		if (!user) {
-			return res.status(202).json({ status: false, message: "User not found" });
-		}
-		if (user) {
-			// Hash password
-			const salt = await bcrypt.genSalt(10);
-			const hashedPassword = await bcrypt.hash(password, salt);
-			// remove otp from database and update password
+	const { otp, email, password } = req.body;
+	// Check for user email
+	const user = await UserModel.findOne({ email, otp });
+	if (!user) {
+		return res.status(202).json({ status: false, message: "User not found" });
+	}
+	if (user) {
+		// Hash password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(password, salt);
+		// remove otp from database and update password
 
-			await UserModel.updateOne(
-				{ email },
-				{ $set: { password: hashedPassword }, $unset: { otp: "" } }
-			);
-			res
-				.status(200)
-				.json({ status: true, message: "Password reset successfully" });
-		}
-	} catch (error) {
-		res.status(202).json({ status: false, message: error.message });
+		await UserModel.updateOne(
+			{ email },
+			{ $set: { password: hashedPassword }, $unset: { otp: "" } }
+		);
+		res
+			.status(200)
+			.json({ status: true, message: "Password reset successfully" });
 	}
 };
 
