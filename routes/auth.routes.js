@@ -1,5 +1,7 @@
 import express from "express";
 import {
+	adminLogin,
+	adminRegister,
 	forgetPassword,
 	login,
 	register,
@@ -14,5 +16,9 @@ router.post("/register", register);
 router.post("/forget-password", forgetPassword);
 router.post("/verify-otp", verifyOtp);
 router.post("/password-reset", resetPassword);
+
+// admin routes
+router.post("/admin/login", adminLogin);
+router.post("/admin/register", adminRegister);
 
 export const authRoutes = router;

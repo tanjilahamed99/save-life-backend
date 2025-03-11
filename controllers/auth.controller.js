@@ -2,6 +2,74 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/user.model.js";
 import sendEmail from "../lib/email/sendEmail.js";
+import { AdminModel } from "../models/admin.model.js";
+
+// admin login
+export const adminLogin = async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		// Check for user email
+		const user = await AdminModel.findOne({ email });
+
+		if (user && (await bcrypt.compare(password, user.password))) {
+			res.status(200).json({
+				status: true,
+				user: {
+					_id: user._id,
+					name: user.name,
+					email: user.email,
+					token: generateToken(user?._id),
+				},
+			});
+		} else {
+			res
+				.status(202)
+				.json({ status: false, message: "Invalid email or password" });
+		}
+	} catch (error) {
+		res.status(202).json({ status: false, message: error.message });
+	}
+};
+
+export const adminRegister = async (req, res) => {
+	try {
+		const { name, email, password } = req.body;
+
+		// Check if user exists
+		const userExists = await AdminModel.findOne({ email });
+		if (userExists) {
+			return res
+				.status(202)
+				.json({ status: false, message: "User already exists" });
+		}
+
+		// Hash password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(password, salt);
+
+		// Create user
+		const user = await AdminModel.create({
+			name,
+			email,
+			password: hashedPassword,
+		});
+
+		if (user) {
+			res.status(201).json({
+				status: true,
+				user: {
+					_id: user._id,
+					name: user.name,
+					email: user.email,
+					token: generateToken(user._id),
+				},
+			});
+		}
+	} catch (error) {
+		res.status(201).json({ status: false, message: error.message });
+	}
+};
 
 // Register user
 export const register = async (req, res) => {
