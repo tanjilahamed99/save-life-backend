@@ -55,9 +55,9 @@ export const createOrder = async (req, res) => {
 		port: 587,
 		secure: false,
 		auth: {
-			user: "zolpidemkopen.net@gmail.com",
+			user: "benzobestellen.net@gmail.com",
 			// pass: "immouoveevzbttrj",
-			pass: "hgvklvpuczvxvjln",
+			pass: "frtusrcdpgoybgkb",
 		},
 		tls: {
 			rejectUnauthorized: false,
@@ -101,6 +101,9 @@ export const createOrder = async (req, res) => {
 	// const sendMail = await sendEmail();
 
 	const order = await OrderModel.create({
+		firstName,
+		lastName,
+		phone,
 		user,
 		email,
 		items: items.map((item) => ({
@@ -108,9 +111,10 @@ export const createOrder = async (req, res) => {
 			price: item.price,
 		})),
 		totalAmount,
-		street: address,
+		address,
 		city,
 		postalCode,
+		country,
 		paymentMethod: "ideal",
 		paymentStatus: "pending",
 		site,

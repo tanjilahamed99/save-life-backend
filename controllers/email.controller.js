@@ -25,7 +25,7 @@ export const paymentRequest = async (req, res) => {
 		return res.status(201).send({ status: false, message: "User not found" });
 	}
 	await sendEmail({
-		subject: "betaling voor zolpidem 10mg kopen",
+		subject: "Payment Request benzobestellen.net",
 		template_name: "payment_request_template",
 		pay_amount,
 		payment_url,

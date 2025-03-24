@@ -1,71 +1,32 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
+	firstName: { type: String, required: false },
+	lastName: { type: String, required: false },
+	email: { type: String, required: true },
+	phone: { type: String, required: true },
+	address: { type: String, required: true },
+	city: { type: String, required: true },
+	postalCode: { type: String, required: true },
+	country: { type: String, required: true },
+	paymentMethod: { type: String, required: true },
 	user: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "User",
-	},
-	email: {
-		type: String,
-		required: true,
+		_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+		name: { type: String, required: true },
+		email: { type: String, required: true },
+		role: { type: String, required: true },
 	},
 	items: [
 		{
-			id: {
-				type: String,
-				required: true,
-			},
-			name: {
-				type: String,
-				required: true,
-			},
-			price: {
-				type: Number,
-				required: true,
-			},
-			image: {
-				type: String,
-			},
-			quantity: {
-				type: Number,
-				required: true,
-				min: 1,
-			},
+			name: { type: String, required: true },
+			price: { type: Number, required: true },
+			quantity: { type: Number, required: true },
+			imageUrl: { type: String, required: true },
 		},
 	],
-	totalAmount: {
-		type: Number,
-		required: true,
-	},
-	status: {
-		type: String,
-		enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
-		default: "pending",
-	},
-	street: String,
-	city: String,
-	postalCode: String,
-	paymentMethod: {
-		type: String,
-		enum: ["ideal", "bancontact", "bitcoin"],
-		default: "ideal",
-	},
-	paymentStatus: {
-		type: String,
-		enum: ["pending", "completed", "failed"],
-		default: "pending",
-	},
-	site: {
-		type: String,
-	},
-	createdAt: {
-		type: Date,
-		default: Date.now,
-	},
-	updatedAt: {
-		type: Date,
-		default: Date.now,
-	},
+	totalAmount: { type: Number, required: true },
+	site: { type: String, required: true },
+	createdAt: { type: Date, default: Date.now },
 });
 
 orderSchema.pre("save", function (next) {
