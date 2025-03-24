@@ -145,9 +145,10 @@ export const login = async (req, res) => {
 export const forgetPassword = async (req, res) => {
 	try {
 		const { email } = req.body;
-		console.log(email);
 		// Check for user email
 		const user = await UserModel.findOne({ email });
+		console.log(user);
+
 		if (!user) {
 			return res.status(202).json({ status: false, message: "User not found" });
 		}

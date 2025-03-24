@@ -24,7 +24,6 @@ export const paymentRequest = async (req, res) => {
 	if (!email) {
 		return res.status(201).send({ status: false, message: "User not found" });
 	}
-	// // Send payment request email
 	await sendEmail({
 		subject: "betaling voor zolpidem 10mg kopen",
 		template_name: "payment_request_template",
@@ -35,4 +34,26 @@ export const paymentRequest = async (req, res) => {
 	});
 
 	res.send({ status: true, message: "Payment email sent" });
+};
+
+export const marketingCampaign = async (req, res) => {
+	const { name, email } = req.body;
+
+	if (!email) {
+		return res
+			.status(201)
+			.send({ status: false, message: "Email is required" });
+	}
+
+	await sendEmail({
+		subject: `${name}, , Exclusieve Korting! 10% Korting op Uw Eerste Bestelling!`,
+		template_name: "marketing_campaign_template",
+		email,
+		name,
+	});
+
+	res.send({
+		status: true,
+		message: "Marketing email sent",
+	});
 };

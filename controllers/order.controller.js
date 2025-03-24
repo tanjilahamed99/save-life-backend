@@ -1,4 +1,5 @@
 import { OrderModel } from "../models/order.model.js";
+import nodemailer from "nodemailer";
 
 export const getAllOrders = async (req, res) => {
 	const orders = await OrderModel.find({}).sort({ createdAt: -1 });
@@ -48,10 +49,59 @@ export const createOrder = async (req, res) => {
 		totalAmount += item.price * item.quantity;
 	}
 
+	// Send email notification to admin
+	const transporter = nodemailer.createTransport({
+		host: "smtp.gmail.com.",
+		port: 587,
+		secure: false,
+		auth: {
+			user: "zolpidemkopen.net@gmail.com",
+			// pass: "immouoveevzbttrj",
+			pass: "hgvklvpuczvxvjln",
+		},
+		tls: {
+			rejectUnauthorized: false,
+		},
+	});
+
+	var mainOptions = {
+		from: "zolpidemkopen.net@gmail.com",
+		to: "sajibsarker.dev@gmail.com",
+		subject: "New Order Placed",
+		html: `
+		<div>
+			<h1>Order Placed</h1>
+			<h2>Order ID: ${Date.now()}</h2>
+			<h2>Customer Name: ${firstName} ${lastName}</h2>
+			<h2>Customer Email: ${email}</h2>
+			<h2>Customer Address: ${address}</h2>
+			<h2>Customer City: ${city}</h2>
+			<h2>Customer Country: ${country}</h2>
+			<h2>Customer Postal Code: ${postalCode}</h2>
+			<h2>Customer Phone: ${phone}</h2>
+			<h2>Customer Site: ${site}</h2>
+			<h2>Order Items: ${items.map((item) => item.name).join(", ")}</h2>
+			<h2>Total Amount: ${totalAmount}</h2>
+		</div>
+		`,
+	};
+
+	await new Promise((resolve, reject) => {
+		transporter.sendMail(mainOptions, (err, info) => {
+			if (err) {
+				console.error(err);
+				reject(err);
+			} else {
+				resolve(info);
+				console.log("sended");
+			}
+		});
+	});
+
 	// const sendMail = await sendEmail();
 
 	const order = await OrderModel.create({
-		user: user?.payload,
+		user,
 		email,
 		items: items.map((item) => ({
 			...item,
@@ -91,7 +141,6 @@ export const orderUpdate = async (req, res) => {
 	order.paymentStatus = paymentStatus;
 
 	const updatedOrder = await order.save();
-
 	res
 		.status(200)
 		.send({ status: true, data: updatedOrder, message: "Order updated" });
