@@ -19,7 +19,7 @@ export const getOrderById = async (req, res) => {
 
 export const getOrderByCustomer = async (req, res) => {
 	// show desc
-	const orders = await OrderModel.find({ user: req.params.id }).sort({
+	const orders = await OrderModel.find({ email: req.params.id }).sort({
 		createdAt: -1,
 	});
 	if (!orders) {
