@@ -1,0 +1,108 @@
+export const paymentRequestEmailTemplate = async ({
+  pay_amount,
+  expiry_date,
+  payment_url,
+}) => {
+  return `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
+    <title>Betalingsverzoek van KOVAC AFBOUW</title>
+    <style type="text/css" rel="stylesheet" media="all">
+      @import url("https://fonts.googleapis.com/css?family=Nunito+Sans:400,700&display=swap");
+      body {
+        width: 100% !important;
+        height: 100%;
+        margin: 0;
+        -webkit-text-size-adjust: none;
+        font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
+      }
+
+      .email-wrapper {
+        background-color: #f2f4f6;
+          color: #000000;
+        padding: 20px 0;
+      }
+
+      .email-body_inner {
+        width: 570px;
+        margin: 0 auto;
+        background-color: #ffffff;
+          color: #000000;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .content-cell {
+        padding: 45px;
+      }
+
+      .button {
+        background-color: #3869d4;
+           color: #ffffff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        margin-top: 20px;
+      }
+
+      .footer {
+        text-align: center;
+        color: #6b7280;
+        margin-top: 20px;
+        font-size: 12px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body,
+        .email-body_inner {
+          background-color: #333333 !important;
+          color: #ffffff !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center">
+          <table class="email-body_inner" width="570" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+              <td class="content-cell" style="color: black">
+                <h1>Beste Klant,</h1>
+                <p>
+                  U heeft een betalingsverzoek ontvangen van <strong>Benzobestellen</strong>.
+                </p>
+                <p><strong>Bedrag:</strong> ${pay_amount}€</p>
+                <p><strong>Vervaldatum:</strong> ${expiry_date}</p>
+                <p>
+                  Om uw betaling te voltooien, klik op de onderstaande knop:
+                </p>
+                <a href="${payment_url}" class="button" style="color: #ffffff">Betaal Nu</a>
+                <p>
+                  Als u vragen heeft, neem dan gerust contact op met ons ondersteuningsteam.
+                </p>
+                <p>Dank u voor uw medewerking.</p>
+                <p>Met vriendelijke groet,<br />Het Benzobestellen Team</p>
+              </td>
+            </tr>
+          </table>
+          <div class="footer">
+            <p>
+              © 2025 benzobestellen.net@gmail.com. Alle rechten voorbehouden.
+              Als u dit betalingsverzoek niet heeft aangevraagd, negeer dan deze e-mail.
+            </p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `;
+};
