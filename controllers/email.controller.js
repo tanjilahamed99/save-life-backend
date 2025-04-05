@@ -25,14 +25,6 @@ export const paymentRequest = async (req, res) => {
   if (!user) {
     return res.status(201).send({ status: false, message: 'User not found' });
   }
-  // await sendEmail({
-  // 	subject: "Payment Request benzobestellen.net",
-  // 	template_name: "payment_request_template",
-  // 	pay_amount,
-  // 	payment_url,
-  // 	expiry_date,
-  // 	email,
-  // });
 
   const htmlContent = await paymentRequestEmailTemplate({
     expiry_date,

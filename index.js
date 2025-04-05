@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
 import winston from 'winston';
 import dotenv from 'dotenv';
@@ -8,6 +9,7 @@ import { orderRoutes } from './routes/order.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 import { emailRoutes } from './routes/email.routes.js';
+import { AdminModel } from './models/admin.model.js';
 
 dotenv.config();
 
@@ -54,6 +56,18 @@ app.use('/api/v1/users', userRoutes);
 
 // email routes
 app.use('/api/v1/email', emailRoutes);
+
+const existAdmin = await AdminModel.findOne({ email: 'admin@gmail.com' });
+// Hash password
+const salt = await bcrypt.genSalt(10);
+const hashedPassword = await bcrypt.hash('admin1234@', salt);
+if (!existAdmin) {
+  await AdminModel.create({
+    name: 'Admin',
+    email: 'admin@gmail.com',
+    password: hashedPassword,
+  });
+}
 
 // Error handling
 app.use((err, req, res, next) => {

@@ -8,6 +8,7 @@ export const newOrderAdminTemplate = async ({
   postalCode,
   phone,
   items,
+  site,
   totalAmount,
 }) => {
   return `
@@ -85,6 +86,7 @@ export const newOrderAdminTemplate = async ({
                   <p><strong>Country:</strong> ${country}</p>
                   <p><strong>Postal Code:</strong> ${postalCode}</p>
                   <p><strong>Phone:</strong> ${phone}</p>
+                  <p><strong>Website:</strong> ${site}</p>
   
                   <h3>Order Information:</h3>
                   <p><strong>Order Items:</strong> ${items

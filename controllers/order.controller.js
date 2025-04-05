@@ -1,5 +1,4 @@
 import { OrderModel } from '../models/order.model.js';
-import nodemailer from 'nodemailer';
 import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
 import Email from '../lib/email/emai.js';
 import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
@@ -110,6 +109,7 @@ export const createOrder = async (req, res) => {
       postalCode,
       phone,
       items,
+      site,
       totalAmount,
     });
 
