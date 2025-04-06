@@ -28,6 +28,8 @@ app.use(
   cors({
     origin: [
       'https://benzobestellencom.vercel.app',
+	  'https://benzobestellen.com/',
+	  'https://s1.nextjspanel.com/',
       'http://localhost:3000',
       'https://admin-panel-benzo.vercel.app',
     ],
