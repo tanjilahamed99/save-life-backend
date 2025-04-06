@@ -92,6 +92,9 @@ export const newOrderAdminTemplate = async ({
                   <p><strong>Order Items:</strong> ${items
                     .map((item) => item.name)
                     .join(', ')}</p>
+                  <p><strong>Item Quantity:</strong> ${items
+                    .map((item) => item.quantity)
+                    .join(', ')}</p>
                   <p><strong>Total Amount:</strong> ${totalAmount}</p>
   
                   <p>Please update the order status accordingly.</p>

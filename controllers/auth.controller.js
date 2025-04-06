@@ -5,6 +5,7 @@ import { AdminModel } from '../models/admin.model.js';
 import Email from '../lib/email/emai.js';
 import { generateOtpEmail } from '../static/email/otp.template.js';
 import { welcomeEmailTemplate } from '../static/email/welcomeEmailTemplate.js';
+import viagraAdminModel from '../models/viagra.admin.js';
 
 // admin login
 export const adminLogin = async (req, res) => {
@@ -13,6 +14,33 @@ export const adminLogin = async (req, res) => {
 
     // Check for user email
     const user = await AdminModel.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      res.status(200).json({
+        status: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          token: generateToken(user?._id),
+        },
+      });
+    } else {
+      res
+        .status(202)
+        .json({ status: false, message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    res.status(202).json({ status: false, message: error.message });
+  }
+};
+// viagra admin login
+export const viagraAdminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check for user email
+    const user = await viagraAdminModel.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.status(200).json({

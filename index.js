@@ -10,6 +10,7 @@ import { authRoutes } from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 import { emailRoutes } from './routes/email.routes.js';
 import { AdminModel } from './models/admin.model.js';
+import viagraAdminModel from './models/viagra.admin.js';
 
 dotenv.config();
 
@@ -59,12 +60,21 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/email', emailRoutes);
 
 const existAdmin = await AdminModel.findOne({ email: 'admin@gmail.com' });
+const existViagraAdmin = await viagraAdminModel.findOne({
+  email: 'admin@gmail.com',
+});
 // Hash password
 const salt = await bcrypt.genSalt(10);
 const hashedPassword = await bcrypt.hash('admin1234@', salt);
 if (!existAdmin) {
   await AdminModel.create({
     name: 'Admin',
+    email: 'admin@gmail.com',
+    password: hashedPassword,
+  });
+}
+if (!existViagraAdmin) {
+  await viagraAdminModel.create({
     email: 'admin@gmail.com',
     password: hashedPassword,
   });
