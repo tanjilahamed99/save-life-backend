@@ -31,6 +31,7 @@ app.use(
       'http://localhost:3000',
       'https://admin-panel-benzo.vercel.app',
     ],
+    credentials: true,
   })
 );
 
