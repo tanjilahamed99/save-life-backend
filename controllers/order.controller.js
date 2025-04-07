@@ -83,6 +83,7 @@ export const createOrder = async (req, res) => {
     adminOrderLink,
     items,
     orderDate,
+    support_url,
     totalAmount,
   }) => {
     // Prepare the HTML content for the user and admin email templates
@@ -107,11 +108,11 @@ export const createOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user).sendEmailTemplate(
+      new Email(user, site).sendEmailTemplate(
         htmlContentUser,
         'New Order Information'
       ),
-      new Email().sendEmailTemplate(
+      new Email(user, site).sendEmailTemplate(
         htmlContentAdmin,
         'New Order Place to Admin'
       ),
@@ -139,6 +140,7 @@ export const createOrder = async (req, res) => {
     orderId: order._id,
     adminOrderLink,
     orderDate: order.createdAt,
+    support_url,
   });
 
   res.send({
@@ -180,6 +182,7 @@ export const createViagraOrder = async (req, res) => {
     phone,
     items,
     site,
+    support_url,
   } = req.body;
 
   // Calculate total amount and verify stock
@@ -218,6 +221,7 @@ export const createViagraOrder = async (req, res) => {
     items,
     orderDate,
     totalAmount,
+    support_url,
   }) => {
     // Prepare the HTML content for the user and admin email templates
     const htmlContentUser = await newOrderEmailTemplate({
@@ -241,11 +245,11 @@ export const createViagraOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user).sendEmailTemplate(
+      new Email({ user: user, site: site }).sendEmailTemplate(
         htmlContentUser,
         'New Order Information'
       ),
-      new Email().sendEmailTemplate(
+      new Email({ user: user, site: site }).sendEmailTemplate(
         htmlContentAdmin,
         'New Order Place to Admin'
       ),
@@ -273,6 +277,7 @@ export const createViagraOrder = async (req, res) => {
     orderId: order._id,
     adminOrderLink,
     orderDate: order.createdAt,
+    support_url,
   });
 
   res.send({
@@ -309,7 +314,7 @@ export const getViagraOrderByCustomer = async (req, res) => {
 };
 export const updateViagraOrder = async (req, res) => {
   const { id } = req.params;
-  const { orderStatus, paymentStatus } = req.body;
+  const { orderStatus, paymentStatus, site } = req.body;
 
   // check if the order exists
   const order = await viagraOrderModel.findById(id);
@@ -335,7 +340,7 @@ export const updateViagraOrder = async (req, res) => {
     email,
   };
   try {
-    await new Email(user).sendEmailTemplate(
+    await new Email(user, site).sendEmailTemplate(
       htmlContentUser,
       'Werk de bestelstatus bij'
     );

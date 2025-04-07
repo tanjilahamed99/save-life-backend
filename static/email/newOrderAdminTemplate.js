@@ -4,7 +4,7 @@ export const newOrderAdminTemplate = async ({
   email,
   items,
   site,
-  totalAmount,
+  totalAmount = 0,
   orderId,
   orderDate,
   adminOrderLink = '#',
@@ -108,20 +108,20 @@ export const newOrderAdminTemplate = async ({
         </thead>
         <tbody>
           ${items
-            .map(
+            ?.map(
               (item) => `
           <tr>
             <td>${item.name}</td>
             <td>${item.quantity}</td>
-            <td>€${item.price.toFixed(2)}</td>
-            <td>€${(item.price * item.quantity).toFixed(2)}</td>
+            <td>€${item.price?.toFixed(2)}</td>
+            <td>€${(item.price * item.quantity)?.toFixed(2)}</td>
           </tr>
           `
             )
             .join('')}
           <tr class="total">
             <td colspan="3">Totaal</td>
-            <td>€${totalAmount.toFixed(2)}</td>
+            <td>€${totalAmount?.toFixed(2)}</td>
           </tr>
         </tbody>
       </table>

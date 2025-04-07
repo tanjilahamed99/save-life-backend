@@ -188,10 +188,9 @@ export const login = async (req, res) => {
 // forget password
 export const forgetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, site } = req.body;
     // Check for user email
     const user = await UserModel.findOne({ email });
-    console.log(user);
 
     if (!user) {
       return res.status(202).json({ status: false, message: 'User not found' });
@@ -203,7 +202,7 @@ export const forgetPassword = async (req, res) => {
       const htmlContent = await generateOtpEmail({ name: user.name, otp: otp });
 
       try {
-        await new Email(user).sendEmailTemplate(
+        await new Email(user, site).sendEmailTemplate(
           htmlContent,
           'Password Reset OTP'
         );

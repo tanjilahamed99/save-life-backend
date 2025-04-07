@@ -157,7 +157,7 @@ export const updateOrderEmailTemplate = async ({
           </thead>
           <tbody>
             ${items
-              .map(
+              ?.map(
                 (item) => `
               <tr>
                 <td>${item.name}</td>
@@ -169,7 +169,7 @@ export const updateOrderEmailTemplate = async ({
               .join('')}
             <tr class="total">
               <td colspan="3">Totaal</td>
-              <td>€${totalAmount.toFixed(2)}</td>
+              <td>€${totalAmount?.toFixed(2)}</td>
             </tr>
           </tbody>
         </table>
