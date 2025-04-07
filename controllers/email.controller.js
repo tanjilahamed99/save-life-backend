@@ -1,6 +1,7 @@
 import Email from '../lib/email/emai.js';
 import { OrderModel } from '../models/order.model.js';
 import { UserModel } from '../models/user.model.js';
+import { basicEmailTemplate } from '../static/email/basicEmailTemplate.js';
 import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
 import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
 import { generateOtpEmail } from '../static/email/otp.template.js';
@@ -9,14 +10,7 @@ import { updateOrderEmailTemplate } from '../static/email/updateOrderEmailTempla
 import { welcomeEmailTemplate } from '../static/email/welcomeEmailTemplate.js';
 
 export const paymentRequest = async (req, res) => {
-  const {
-    orderId,
-    pay_amount,
-    expiry_date,
-    payment_url,
-    order_url,
-    support_url,
-  } = req.body;
+  const { orderId, pay_amount, expiry_date, payment_url, order_url } = req.body;
 
   // Check if order ID and message is provided
   if (!orderId) {
@@ -46,11 +40,14 @@ export const paymentRequest = async (req, res) => {
     order_url,
     orderDate: order.createdAt,
     site: order.site,
-    support_url,
     order_items: order.items,
-    shipping,
-    subtotal,
+    shipping: order?.shipping,
+    subtotal: order?.subtotal,
     total: order.totalAmount,
+    support_url:
+      order.site === 'https://benzobestellen.com'
+        ? 'https://benzobestellen.com/contact'
+        : 'https://zolpidem-kopen.net/contact',
   });
 
   try {

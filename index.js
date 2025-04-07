@@ -66,6 +66,7 @@ const existViagraAdmin = await viagraAdminModel.findOne({
 // Hash password
 const salt = await bcrypt.genSalt(10);
 const hashedPassword = await bcrypt.hash('admin1234@', salt);
+
 if (!existAdmin) {
   await AdminModel.create({
     name: 'Admin',
@@ -73,6 +74,7 @@ if (!existAdmin) {
     password: hashedPassword,
   });
 }
+
 if (!existViagraAdmin) {
   await viagraAdminModel.create({
     email: 'admin@gmail.com',

@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  contactUsEmail,
   marketingCampaign,
   orderPlaceEmail,
   otpEmail,
@@ -13,7 +14,6 @@ const router = express.Router();
 
 router.post('/payment/request', paymentRequest);
 router.post('/campaign/customer', marketingCampaign);
-
 // email test api
 
 router.post('/welcome-email', sendWelcomeEmail);

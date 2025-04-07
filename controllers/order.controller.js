@@ -4,12 +4,12 @@ import Email from '../lib/email/emai.js';
 import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
 import { viagraOrderModel } from '../models/viagra.order.js';
 import { updateOrderEmailTemplate } from '../static/email/updateOrderEmailTemplate.js';
+import { AdminModel } from '../models/admin.model.js';
+import viagraAdminModel from '../models/viagra.admin.js';
 
 export const getAllOrders = async (req, res) => {
   const orders = await OrderModel.find({}).sort({ createdAt: -1 });
-  if (!orders) {
-    return res.json({ status: false, message: 'No orders found' });
-  }
+
   res.json({ status: true, data: orders });
 };
 
@@ -45,14 +45,17 @@ export const createOrder = async (req, res) => {
     phone,
     items,
     site,
-    support_url,
   } = req.body;
 
   // Calculate total amount and verify stock
-  let totalAmount = 0;
+  let subtotal = 0;
   for (const item of items) {
-    totalAmount += item.price * item.quantity;
+    subtotal += item.price * item.quantity;
   }
+
+  const shipping = 5;
+
+  const totalAmount = subtotal + shipping;
 
   const order = await OrderModel.create({
     firstName,
@@ -69,10 +72,14 @@ export const createOrder = async (req, res) => {
     city,
     postalCode,
     country,
+    shipping,
+    subtotal,
     paymentMethod: 'ideal',
     paymentStatus: 'pending',
     site,
   });
+
+  const admins = await AdminModel.find({});
 
   const sendOrderEmail = async ({
     firstName,
@@ -112,10 +119,14 @@ export const createOrder = async (req, res) => {
         htmlContentUser,
         'New Order Information'
       ),
-      new Email(user, site).sendEmailTemplate(
-        htmlContentAdmin,
-        'New Order Place to Admin'
-      ),
+      ...admins
+        .filter((admin) => admin.email !== 'admin@gmail.com')
+        .map((admin) =>
+          new Email(admin, site).sendEmailTemplate(
+            htmlContentAdmin,
+            'New Order Place to Admin'
+          )
+        ),
     ];
 
     try {
@@ -138,9 +149,12 @@ export const createOrder = async (req, res) => {
     site,
     totalAmount,
     orderId: order._id,
-    adminOrderLink,
+    adminOrderLink: 'https://admin-panel-benzo.vercel.app/admin',
     orderDate: order.createdAt,
-    support_url,
+    support_url:
+      site === 'https://benzobestellen.com'
+        ? 'https://benzobestellen.com/contact'
+        : 'https://zolpidem-kopen.net/contact',
   });
 
   res.send({
@@ -152,7 +166,6 @@ export const createOrder = async (req, res) => {
 
 export const orderUpdate = async (req, res) => {
   const { _id, orderStatus, paymentStatus } = req.body;
-  // check order exist or not
 
   const order = await OrderModel.findById({ _id });
   if (!order) {
@@ -210,6 +223,7 @@ export const createViagraOrder = async (req, res) => {
     paymentStatus: 'pending',
     site,
   });
+  const admins = await viagraAdminModel.find({});
 
   const sendOrderEmail = async ({
     firstName,
@@ -245,14 +259,18 @@ export const createViagraOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email({ user: user, site: site }).sendEmailTemplate(
+      new Email(user, site).sendEmailTemplate(
         htmlContentUser,
         'New Order Information'
       ),
-      new Email({ user: user, site: site }).sendEmailTemplate(
-        htmlContentAdmin,
-        'New Order Place to Admin'
-      ),
+      ...admins
+        .filter((admin) => admin.email !== 'admin@gmail.com')
+        .map((admin) =>
+          new Email(admin, site).sendEmailTemplate(
+            htmlContentAdmin,
+            'New Order Place to Admin'
+          )
+        ),
     ];
 
     try {

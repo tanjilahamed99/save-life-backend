@@ -8,7 +8,7 @@ export const paymentRequestEmailTemplate = async ({
   shipping = 0,
   total = 0,
   order_url,
-  support_url = '#',
+  support_url,
 }) => {
   const itemsRows = order_items
     .map(
