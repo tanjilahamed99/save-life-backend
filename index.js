@@ -23,9 +23,22 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Cors
-// Cors
-
 app.use(cors());
+// app.use(
+// 	cors({
+// 		origin: [
+// 			"https://benzobestellencom.vercel.app",
+// 			"https://benzobestellen.com",
+// 			"http://localhost:3000",
+// 			"https://admin-panel-benzo.vercel.app",
+// 			"http://admin.zolpidem-kopen.net/",
+// 		],
+// 		credentials: true,
+// 	})
+// );
+
+// Optional: preflight handler for all routes
+app.options("*", cors());
 
 // Logger setup
 winston.add(
@@ -62,12 +75,12 @@ if (!existAdmin) {
 	});
 }
 
-if (!existViagraAdmin) {
-	await viagraAdminModel.create({
-		email: "admin@gmail.com",
-		password: hashedPassword,
-	});
-}
+// if (!existViagraAdmin) {
+// 	await viagraAdminModel.create({
+// 		email: "admin@gmail.com",
+// 		password: hashedPassword,
+// 	});
+// }
 
 // Error handling
 app.use((err, req, res, next) => {
