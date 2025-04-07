@@ -1,7 +1,6 @@
 import Email from '../lib/email/emai.js';
 import { OrderModel } from '../models/order.model.js';
 import { UserModel } from '../models/user.model.js';
-import { basicEmailTemplate } from '../static/email/basicEmailTemplate.js';
 import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
 import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
 import { generateOtpEmail } from '../static/email/otp.template.js';
