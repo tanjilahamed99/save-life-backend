@@ -5,6 +5,7 @@ import { AdminModel } from '../models/admin.model.js';
 import Email from '../lib/email/emai.js';
 import { generateOtpEmail } from '../static/email/otp.template.js';
 import { welcomeEmailTemplate } from '../static/email/welcomeEmailTemplate.js';
+import viagraAdminModel from '../models/viagra.admin.js';
 
 // admin login
 export const adminLogin = async (req, res) => {
@@ -13,6 +14,33 @@ export const adminLogin = async (req, res) => {
 
     // Check for user email
     const user = await AdminModel.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      res.status(200).json({
+        status: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          token: generateToken(user?._id),
+        },
+      });
+    } else {
+      res
+        .status(202)
+        .json({ status: false, message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    res.status(202).json({ status: false, message: error.message });
+  }
+};
+// viagra admin login
+export const viagraAdminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check for user email
+    const user = await viagraAdminModel.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.status(200).json({
@@ -76,7 +104,7 @@ export const adminRegister = async (req, res) => {
 // Register user
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, site } = req.body;
 
     // Check if user exists
     const userExists = await UserModel.findOne({ email });
@@ -98,12 +126,15 @@ export const register = async (req, res) => {
     });
 
     if (user) {
-      const htmlContent = await welcomeEmailTemplate({ name: user.name });
+      const htmlContent = await welcomeEmailTemplate({
+        name,
+        site,
+      });
 
       try {
-        await new Email(user).sendEmailTemplate(
+        await new Email(user, site).sendEmailTemplate(
           htmlContent,
-          'Welkom bij Zolpidem-kopen'
+          `Welkom bij ${site}`
         );
       } catch (err) {
         console.log(err);
@@ -157,10 +188,9 @@ export const login = async (req, res) => {
 // forget password
 export const forgetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, site } = req.body;
     // Check for user email
     const user = await UserModel.findOne({ email });
-    console.log(user);
 
     if (!user) {
       return res.status(202).json({ status: false, message: 'User not found' });
@@ -172,7 +202,7 @@ export const forgetPassword = async (req, res) => {
       const htmlContent = await generateOtpEmail({ name: user.name, otp: otp });
 
       try {
-        await new Email(user).sendEmailTemplate(
+        await new Email(user, site).sendEmailTemplate(
           htmlContent,
           'Password Reset OTP'
         );

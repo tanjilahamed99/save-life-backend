@@ -3,7 +3,8 @@ import { UserModel } from '../models/user.model.js';
 // Get current user
 export const getCurrentUser = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.user._id);
+    const user = await UserModel.findById(req.params.id);
+
     res.status(200).json(user);
   } catch (error) {
     res.status(202).json({ status: false, message: error.message });
@@ -40,6 +41,7 @@ export const updateUserRole = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { name, email, phone, address } = req.body;
+
     const user = await UserModel.findById(req.params.id).select('-password');
 
     if (!user) {
