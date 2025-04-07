@@ -1,6 +1,7 @@
 import Email from '../lib/email/emai.js';
 import { OrderModel } from '../models/order.model.js';
 import { UserModel } from '../models/user.model.js';
+import { basicEmailTemplate } from '../static/email/basicEmailTemplate.js';
 import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
 import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
 import { generateOtpEmail } from '../static/email/otp.template.js';
@@ -83,6 +84,23 @@ export const marketingCampaign = async (req, res) => {
   });
 };
 
+export const contactUsEmail = async (req, res) => {
+  const { name, email, subject, message } = req.body;
+  const htmlContent = await basicEmailTemplate({
+    message,
+    email,
+    name,
+    subject,
+  });
+
+  try {
+    await new Email().sendEmailTemplate(htmlContent, subject);
+  } catch (err) {
+    console.log(err);
+  }
+
+  res.send({ status: true, message: 'Email sent' });
+};
 //  email test
 export const sendWelcomeEmail = async (req, res) => {
   const user = req.body;
