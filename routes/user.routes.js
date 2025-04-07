@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 router.post('/all', getUsers);
-router.post('/:id', getCurrentUser);
+router.get('/:id', getCurrentUser);
 router.delete('/:id', deleteUser);
 router.put('/:id', updateProfile);
 router.put('/role/:id', updateUserRole);

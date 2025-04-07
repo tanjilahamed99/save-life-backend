@@ -1,108 +1,140 @@
 export const paymentRequestEmailTemplate = async ({
-  pay_amount,
-  expiry_date,
   payment_url,
+  name,
+  site,
+  orderDate,
+  order_items = [],
+  subtotal = 0,
+  shipping = 0,
+  total = 0,
+  order_url,
+  support_url,
 }) => {
+  const itemsRows = order_items
+    .map(
+      (item) => `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>€${item.price}</td>
+          <td>€${item.total}</td>
+        </tr>
+      `
+    )
+    .join('');
+
   return `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="nl">
   <head>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="x-apple-disable-message-reformatting" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="supported-color-schemes" content="light dark" />
-    <title>Betalingsverzoek van KOVAC AFBOUW</title>
-    <style type="text/css" rel="stylesheet" media="all">
-      @import url("https://fonts.googleapis.com/css?family=Nunito+Sans:400,700&display=swap");
+    <title>Bestelbevestiging - ${site}</title>
+    <style>
       body {
-        width: 100% !important;
-        height: 100%;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f7;
         margin: 0;
-        -webkit-text-size-adjust: none;
-        font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
+        padding: 0;
+        color: #333333;
       }
-
       .email-wrapper {
-        background-color: #f2f4f6;
-          color: #000000;
-        padding: 20px 0;
-      }
-
-      .email-body_inner {
-        width: 570px;
+        max-width: 600px;
         margin: 0 auto;
         background-color: #ffffff;
-          color: #000000;
+        padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
-
-      .content-cell {
-        padding: 45px;
+      h1 {
+        color: #2e86de;
       }
-
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #2e86de;
+        color: white;
+      }
+      .total {
+        font-weight: bold;
+      }
       .button {
-        background-color: #3869d4;
-           color: #ffffff;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
         display: inline-block;
         margin-top: 20px;
+        padding: 12px 24px;
+        background-color: #2e86de;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
       }
-
       .footer {
-        text-align: center;
-        color: #6b7280;
-        margin-top: 20px;
+        margin-top: 30px;
         font-size: 12px;
+        color: #777777;
+        text-align: center;
       }
-
-      @media (prefers-color-scheme: dark) {
-        body,
-        .email-body_inner {
-          background-color: #333333 !important;
-          color: #ffffff !important;
+      @media (max-width: 600px) {
+        .email-wrapper {
+          padding: 10px;
+        }
+        table {
+          font-size: 14px;
         }
       }
     </style>
   </head>
   <body>
-    <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-      <tr>
-        <td align="center">
-          <table class="email-body_inner" width="570" cellpadding="0" cellspacing="0" role="presentation">
-            <tr>
-              <td class="content-cell" style="color: black">
-                <h1>Beste Klant,</h1>
-                <p>
-                  U heeft een betalingsverzoek ontvangen van <strong>Benzobestellen</strong>.
-                </p>
-                <p><strong>Bedrag:</strong> ${pay_amount}€</p>
-                <p><strong>Vervaldatum:</strong> ${expiry_date}</p>
-                <p>
-                  Om uw betaling te voltooien, klik op de onderstaande knop:
-                </p>
-                <a href="${payment_url}" class="button" style="color: #ffffff">Betaal Nu</a>
-                <p>
-                  Als u vragen heeft, neem dan gerust contact op met ons ondersteuningsteam.
-                </p>
-                <p>Dank u voor uw medewerking.</p>
-                <p>Met vriendelijke groet,<br />Het Benzobestellen Team</p>
-              </td>
-            </tr>
-          </table>
-          <div class="footer">
-            <p>
-              © 2025 benzobestellen.net@gmail.com. Alle rechten voorbehouden.
-              Als u dit betalingsverzoek niet heeft aangevraagd, negeer dan deze e-mail.
-            </p>
-          </div>
-        </td>
-      </tr>
-    </table>
+    <div class="email-wrapper">
+      <h1>Bedankt voor uw bestelling, ${name}!</h1>
+      <p>Uw bestelling is succesvol ontvangen op ${orderDate}.</p>
+
+      <h3>Bestelgegevens:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Aantal</th>
+            <th>Prijs</th>
+            <th>Totaal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsRows}
+          <tr class="total">
+            <td colspan="3">Subtotaal</td>
+            <td>€${subtotal}</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3">Verzendkosten</td>
+            <td>€${shipping}</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3">Totaal</td>
+            <td>€${total}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>U kunt uw betaling nu voltooien door op onderstaande knop te klikken:</p>
+      <a href="${payment_url}" class="button">💳 Betaal nu</a>
+
+      <p>Uw bestelling wordt verwerkt zodra de betaling is ontvangen. U ontvangt een verzendbevestiging per e-mail.</p>
+
+      <a href="${order_url}" class="button" style="background-color: #10b981; margin-top: 10px;">📦 Bekijk uw bestelling</a>
+
+      <div class="footer">
+        <p>© ${new Date().getFullYear()} ${site} – Alle rechten voorbehouden.</p>
+        <p>Vragen? <a href="${support_url}">Neem contact op met onze klantenservice</a>.</p>
+      </div>
+    </div>
   </body>
 </html>
-  `;
+`;
 };
