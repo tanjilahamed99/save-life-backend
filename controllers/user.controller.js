@@ -50,7 +50,6 @@ export const updateProfile = async (req, res) => {
 			return res.status(202).json({ status: false, message: "User not found" });
 		}
 
-		console.log(user);
 		user.name = name;
 		user.email = user?.email;
 		user.phone = phone || "";
