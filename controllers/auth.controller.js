@@ -104,7 +104,7 @@ export const adminRegister = async (req, res) => {
 // Register user
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, site } = req.body;
 
     // Check if user exists
     const userExists = await UserModel.findOne({ email });
@@ -126,12 +126,15 @@ export const register = async (req, res) => {
     });
 
     if (user) {
-      const htmlContent = await welcomeEmailTemplate({ name: user.name });
+      const htmlContent = await welcomeEmailTemplate({
+        name,
+        site,
+      });
 
       try {
-        await new Email(user).sendEmailTemplate(
+        await new Email(user, site).sendEmailTemplate(
           htmlContent,
-          'Welkom bij Zolpidem-kopen'
+          `Welkom bij ${site}`
         );
       } catch (err) {
         console.log(err);

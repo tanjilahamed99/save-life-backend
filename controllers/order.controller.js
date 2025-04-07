@@ -45,6 +45,7 @@ export const createOrder = async (req, res) => {
     phone,
     items,
     site,
+    support_url,
   } = req.body;
 
   // Calculate total amount and verify stock
@@ -77,42 +78,31 @@ export const createOrder = async (req, res) => {
     firstName,
     lastName,
     email,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
     site,
+    orderId,
+    adminOrderLink,
     items,
+    orderDate,
     totalAmount,
   }) => {
     // Prepare the HTML content for the user and admin email templates
     const htmlContentUser = await newOrderEmailTemplate({
       firstName,
       lastName,
-      email,
-      address,
-      city,
-      country,
-      postalCode,
-      phone,
       site,
-      items,
-      totalAmount,
+      support_url,
     });
 
     const htmlContentAdmin = await newOrderAdminTemplate({
       firstName,
       lastName,
       email,
-      address,
-      city,
-      country,
-      postalCode,
-      phone,
       items,
       site,
       totalAmount,
+      orderId,
+      adminOrderLink,
+      orderDate,
     });
 
     // Create an array of promises to send emails in parallel
@@ -140,17 +130,15 @@ export const createOrder = async (req, res) => {
 
   // Usage:
   sendOrderEmail({
-    address,
-    city,
-    country,
     email,
     firstName,
     items,
     lastName,
-    phone,
-    postalCode,
     site,
     totalAmount,
+    orderId: order._id,
+    adminOrderLink,
+    orderDate: order.createdAt,
   });
 
   res.send({
@@ -224,42 +212,31 @@ export const createViagraOrder = async (req, res) => {
     firstName,
     lastName,
     email,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
     site,
+    orderId,
+    adminOrderLink,
     items,
+    orderDate,
     totalAmount,
   }) => {
     // Prepare the HTML content for the user and admin email templates
     const htmlContentUser = await newOrderEmailTemplate({
       firstName,
       lastName,
-      email,
-      address,
-      city,
-      country,
-      postalCode,
-      phone,
       site,
-      items,
-      totalAmount,
+      support_url,
     });
 
     const htmlContentAdmin = await newOrderAdminTemplate({
       firstName,
       lastName,
       email,
-      address,
-      city,
-      country,
-      postalCode,
-      phone,
       items,
       site,
       totalAmount,
+      orderId,
+      adminOrderLink,
+      orderDate,
     });
 
     // Create an array of promises to send emails in parallel
@@ -287,17 +264,15 @@ export const createViagraOrder = async (req, res) => {
 
   // Usage:
   sendOrderEmail({
-    address,
-    city,
-    country,
     email,
     firstName,
     items,
     lastName,
-    phone,
-    postalCode,
     site,
     totalAmount,
+    orderId: order._id,
+    adminOrderLink,
+    orderDate: order.createdAt,
   });
 
   res.send({
@@ -344,35 +319,17 @@ export const updateViagraOrder = async (req, res) => {
 
   order.orderStatus = orderStatus;
   order.paymentStatus = paymentStatus;
-  const {
-    firstName,
-    lastName,
-    email,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
-    site,
-    items,
-    totalAmount,
-  } = order;
+  const { firstName, lastName, email, items, totalAmount } = order;
   const updatedOrder = await order.save();
 
   const htmlContentUser = await updateOrderEmailTemplate({
     firstName,
     lastName,
     email,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
-    site,
+    orderId: order._id,
+    status: orderStatus,
     items,
     totalAmount,
-    orderId: order?._id,
-    status: order?.orderStatus,
   });
   const user = {
     email,

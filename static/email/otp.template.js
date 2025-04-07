@@ -1,4 +1,4 @@
-export const generateOtpEmail = async ({ name, otp }) => {
+export const generateOtpEmail = async ({ name, otp, site }) => {
   return `
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -70,12 +70,12 @@ export const generateOtpEmail = async ({ name, otp }) => {
                     <div class="otp-code">${otp}</div>
                     <p>Deze OTP is slechts korte tijd geldig. Deel deze niet met anderen.</p>
                     <p>Als u deze OTP niet hebt aangevraagd, negeer deze e-mail dan.</p>
-                    <p>Met vriendelijke groet,<br />Het Zolpidem-kopen Team</p>
+                    <p>Met vriendelijke groet,<br />Het ${site} Team</p>
                   </td>
                 </tr>
               </table>
               <div class="footer">
-                <p>© 2025 Zolpidem-kopen. Alle rechten voorbehouden.</p>
+                <p>© ${new Date().getFullYear()} ${site}. Alle rechten voorbehouden.</p>
               </div>
             </td>
           </tr>

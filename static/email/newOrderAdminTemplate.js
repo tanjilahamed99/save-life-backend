@@ -2,116 +2,141 @@ export const newOrderAdminTemplate = async ({
   firstName,
   lastName,
   email,
-  address,
-  city,
-  country,
-  postalCode,
-  phone,
   items,
   site,
   totalAmount,
+  orderId,
+  orderDate,
+  adminOrderLink = '#',
 }) => {
+  const customerName = `${firstName} ${lastName}`;
+  const customerEmail = email;
+
   return `
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-  <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="x-apple-disable-message-reformatting" />
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-      <meta name="color-scheme" content="light dark" />
-      <meta name="supported-color-schemes" content="light dark" />
-      <title>New Order Notification for Admin</title>
-      <style type="text/css" rel="stylesheet" media="all">
-        @import url("https://fonts.googleapis.com/css?family=Nunito+Sans:400,700&display=swap");
-        body {
-          width: 100% !important;
-          height: 100%;
-          margin: 0;
-          -webkit-text-size-adjust: none;
-          font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
+  <!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nieuwe bestelling geplaatst</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f7;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+
+      .email-container {
+        max-width: 700px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 30px;
+      }
+
+      h1 {
+        color: #2c3e50;
+        font-size: 24px;
+      }
+
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f0f0f0;
+      }
+
+      .total {
+        font-weight: bold;
+        background-color: #f9f9f9;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .email-container {
+          padding: 15px;
         }
-  
-        .email-wrapper {
-          background-color: #f2f4f6;
-                color: #000000;
-          padding: 20px 0;
+
+        table, th, td {
+          font-size: 14px;
         }
-  
-        .email-body_inner {
-          width: 570px;
-          margin: 0 auto;
-          background-color: #ffffff;
-            color: #000000;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-  
-        .content-cell {
-          padding: 45px;
-        }
-  
-        .button {
-          background-color: #3869d4;
-          color: #ffffff;
-          padding: 10px 20px;
-          text-decoration: none;
-          border-radius: 5px;
-          display: inline-block;
-          margin-top: 20px;
-        }
-  
-        .footer {
-          text-align: center;
-          color: #6b7280;
-          margin-top: 20px;
-          font-size: 12px;
-        }
-      </style>
-    </head>
-    <body>
-      <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-        <tr>
-          <td align="center">
-            <table class="email-body_inner" width="570" cellpadding="0" cellspacing="0" role="presentation">
-              <tr>
-                <td class="content-cell">
-                  <h1>New Order Placed - Admin</h1>
-                  <h2>Order ID: ${Date.now()}</h2>
-  
-                  <h3>Customer Information:</h3>
-                  <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-                  <p><strong>Email:</strong> ${email}</p>
-                  <p><strong>Address:</strong> ${address}</p>
-                  <p><strong>City:</strong> ${city}</p>
-                  <p><strong>Country:</strong> ${country}</p>
-                  <p><strong>Postal Code:</strong> ${postalCode}</p>
-                  <p><strong>Phone:</strong> ${phone}</p>
-                  <p><strong>Website:</strong> ${site}</p>
-  
-                  <h3>Order Information:</h3>
-                  <p><strong>Order Items:</strong> ${items
-                    .map((item) => item.name)
-                    .join(', ')}</p>
-                  <p><strong>Item Quantity:</strong> ${items
-                    .map((item) => item.quantity)
-                    .join(', ')}</p>
-                  <p><strong>Total Amount:</strong> ${totalAmount}</p>
-  
-                  <p>Please update the order status accordingly.</p>
-  
-                  <p>If you have any questions or need further information, feel free to reach out.</p>
-  
-                  <p>Thank you!</p>
-                </td>
-              </tr>
-            </table>
-            <div class="footer">
-                <p>© 2025 Zolpidem-kopen. Alle rechten voorbehouden.</p>
-            </div>
-          </td>
-        </tr>
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <h1>Nieuwe bestelling geplaatst</h1>
+
+      <p>Er is zojuist een nieuwe bestelling geplaatst op <strong>${site}</strong>.</p>
+
+      <p><strong>Klantnaam:</strong> ${customerName}</p>
+      <p><strong>E-mailadres:</strong> ${customerEmail}</p>
+      <p><strong>Bestelnummer:</strong> ${orderId}</p>
+      <p><strong>Besteldatum:</strong> ${orderDate}</p>
+
+      <h2>Besteloverzicht</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Aantal</th>
+            <th>Prijs</th>
+            <th>Totaal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items
+            .map(
+              (item) => `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>€${item.price.toFixed(2)}</td>
+            <td>€${(item.price * item.quantity).toFixed(2)}</td>
+          </tr>
+          `
+            )
+            .join('')}
+          <tr class="total">
+            <td colspan="3">Totaal</td>
+            <td>€${totalAmount.toFixed(2)}</td>
+          </tr>
+        </tbody>
       </table>
-    </body>
-  </html>
-    `;
+
+      <p>
+        <a href="${adminOrderLink}" style="color: #2c3e50; text-decoration: underline;">
+          Bekijk bestelling in dashboard
+        </a>
+      </p>
+
+      <div class="footer">
+        Deze e-mail is automatisch gegenereerd door ${site}.
+      </div>
+    </div>
+  </body>
+</html>
+`;
 };
