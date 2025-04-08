@@ -1,6 +1,5 @@
 export const newOrderAdminTemplate = async ({
-  firstName,
-  lastName,
+  name,
   email,
   items,
   site,
@@ -9,7 +8,6 @@ export const newOrderAdminTemplate = async ({
   orderDate,
   adminOrderLink = '#',
 }) => {
-  const customerName = `${firstName} ${lastName}`;
   const customerEmail = email;
 
   return `
@@ -91,7 +89,7 @@ export const newOrderAdminTemplate = async ({
 
       <p>Er is zojuist een nieuwe bestelling geplaatst op <strong>${site}</strong>.</p>
 
-      <p><strong>Klantnaam:</strong> ${customerName}</p>
+      <p><strong>Klantnaam:</strong> ${name}</p>
       <p><strong>E-mailadres:</strong> ${customerEmail}</p>
       <p><strong>Bestelnummer:</strong> ${orderId}</p>
       <p><strong>Besteldatum:</strong> ${orderDate}</p>

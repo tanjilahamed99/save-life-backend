@@ -10,7 +10,7 @@ import { updateOrderEmailTemplate } from '../static/email/updateOrderEmailTempla
 import { welcomeEmailTemplate } from '../static/email/welcomeEmailTemplate.js';
 
 export const paymentRequest = async (req, res) => {
-  const { orderId, pay_amount, expiry_date, payment_url, order_url } = req.body;
+  const { orderId, pay_amount, expiry_date, payment_url } = req.body;
 
   // Check if order ID and message is provided
   if (!orderId) {
@@ -37,7 +37,10 @@ export const paymentRequest = async (req, res) => {
     pay_amount,
     payment_url,
     name: order.firstName + ' ' + order.lastName,
-    order_url,
+    order_url:
+      order.site === 'https://benzobestellen.com'
+        ? 'https://benzobestellen.com/my-account'
+        : 'https://zolpidem-kopen.net/my-account',
     orderDate: order.createdAt,
     site: order.site,
     order_items: order.items,

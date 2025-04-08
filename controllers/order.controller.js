@@ -6,6 +6,7 @@ import { viagraOrderModel } from '../models/viagra.order.js';
 import { updateOrderEmailTemplate } from '../static/email/updateOrderEmailTemplate.js';
 import { AdminModel } from '../models/admin.model.js';
 import viagraAdminModel from '../models/viagra.admin.js';
+import { UserModel } from '../models/user.model.js';
 
 export const getAllOrders = async (req, res) => {
   const orders = await OrderModel.find({}).sort({ createdAt: -1 });
@@ -53,6 +54,8 @@ export const createOrder = async (req, res) => {
     subtotal += item.price * item.quantity;
   }
 
+  const userData = await UserModel.findOne({ email: user.email });
+
   const shipping = 5;
 
   const totalAmount = subtotal + shipping;
@@ -82,8 +85,7 @@ export const createOrder = async (req, res) => {
   const admins = await AdminModel.find({});
 
   const sendOrderEmail = async ({
-    firstName,
-    lastName,
+    name,
     email,
     site,
     orderId,
@@ -95,15 +97,13 @@ export const createOrder = async (req, res) => {
   }) => {
     // Prepare the HTML content for the user and admin email templates
     const htmlContentUser = await newOrderEmailTemplate({
-      firstName,
-      lastName,
+      name,
       site,
       support_url,
     });
 
     const htmlContentAdmin = await newOrderAdminTemplate({
-      firstName,
-      lastName,
+      name,
       email,
       items,
       site,
@@ -142,10 +142,9 @@ export const createOrder = async (req, res) => {
 
   // Usage:
   sendOrderEmail({
+    name: userData.name,
     email,
-    firstName,
     items,
-    lastName,
     site,
     totalAmount,
     orderId: order._id,
@@ -203,6 +202,7 @@ export const createViagraOrder = async (req, res) => {
   for (const item of items) {
     totalAmount += item.price * item.quantity;
   }
+  const userData = await UserModel.findOne({ email: user.email });
 
   const order = await viagraOrderModel.create({
     firstName,
@@ -226,8 +226,7 @@ export const createViagraOrder = async (req, res) => {
   const admins = await viagraAdminModel.find({});
 
   const sendOrderEmail = async ({
-    firstName,
-    lastName,
+    name,
     email,
     site,
     orderId,
@@ -239,15 +238,13 @@ export const createViagraOrder = async (req, res) => {
   }) => {
     // Prepare the HTML content for the user and admin email templates
     const htmlContentUser = await newOrderEmailTemplate({
-      firstName,
-      lastName,
+      name,
       site,
       support_url,
     });
 
     const htmlContentAdmin = await newOrderAdminTemplate({
-      firstName,
-      lastName,
+      name,
       email,
       items,
       site,
@@ -286,10 +283,9 @@ export const createViagraOrder = async (req, res) => {
 
   // Usage:
   sendOrderEmail({
+    name,
     email,
-    firstName,
     items,
-    lastName,
     site,
     totalAmount,
     orderId: order._id,
