@@ -1,3 +1,4 @@
+
 import { OrderModel } from '../models/order.model.js';
 import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
 import Email from '../lib/email/emai.js';
@@ -8,32 +9,34 @@ import { AdminModel } from '../models/admin.model.js';
 import viagraAdminModel from '../models/viagra.admin.js';
 import { UserModel } from '../models/user.model.js';
 
-export const getAllOrders = async (req, res) => {
-  const orders = await OrderModel.find({}).sort({ createdAt: -1 });
 
-  res.json({ status: true, data: orders });
+export const getAllOrders = async (req, res) => {
+	const orders = await OrderModel.find({}).sort({ createdAt: -1 });
+
+	res.json({ status: true, data: orders });
 };
 
 export const getOrderById = async (req, res) => {
-  const order = await OrderModel.findById(req.params.id);
-  if (!order) {
-    return res.json({ status: false, message: 'Order not found' });
-  }
-  res.json({ status: true, data: order });
+	const order = await OrderModel.findById(req.params.id);
+	if (!order) {
+		return res.json({ status: false, message: "Order not found" });
+	}
+	res.json({ status: true, data: order });
 };
 
 export const getOrderByCustomer = async (req, res) => {
-  // show desc
-  const orders = await OrderModel.find({ email: req.params.id }).sort({
-    createdAt: -1,
-  });
-  if (!orders) {
-    return res.json({ status: false, message: 'No orders found' });
-  }
-  res.json({ status: true, data: orders });
+	// show desc
+	const orders = await OrderModel.find({ email: req.params.id }).sort({
+		createdAt: -1,
+	});
+	if (!orders) {
+		return res.json({ status: false, message: "No orders found" });
+	}
+	res.json({ status: true, data: orders });
 };
 
 export const createOrder = async (req, res) => {
+
   const {
     user,
     email,
@@ -164,24 +167,25 @@ export const createOrder = async (req, res) => {
 };
 
 export const orderUpdate = async (req, res) => {
-  const { _id, orderStatus, paymentStatus } = req.body;
+	const { _id, orderStatus, paymentStatus } = req.body;
 
-  const order = await OrderModel.findById({ _id });
-  if (!order) {
-    return res.send({ status: false, message: 'Order not found' });
-  }
+	const order = await OrderModel.findById({ _id });
+	if (!order) {
+		return res.send({ status: false, message: "Order not found" });
+	}
 
-  order.orderStatus = orderStatus;
-  order.paymentStatus = paymentStatus;
+	order.orderStatus = orderStatus;
+	order.paymentStatus = paymentStatus;
 
-  const updatedOrder = await order.save();
-  res
-    .status(200)
-    .send({ status: true, data: updatedOrder, message: 'Order updated' });
+	const updatedOrder = await order.save();
+	res
+		.status(200)
+		.send({ status: true, data: updatedOrder, message: "Order updated" });
 };
 
 // viagra
 export const createViagraOrder = async (req, res) => {
+
   const {
     user,
     email,
@@ -299,84 +303,85 @@ export const createViagraOrder = async (req, res) => {
     data: order,
     message: 'Order created successfully',
   });
+
 };
 export const getAllViagraOrders = async (req, res) => {
-  const orders = await viagraOrderModel.find({}).sort({ createdAt: -1 });
-  if (!orders || orders.length === 0) {
-    return res.json({ status: false, message: 'No Viagra orders found' });
-  }
-  res.json({ status: true, data: orders });
+	const orders = await viagraOrderModel.find({}).sort({ createdAt: -1 });
+	if (!orders || orders.length === 0) {
+		return res.json({ status: false, message: "No Viagra orders found" });
+	}
+	res.json({ status: true, data: orders });
 };
 export const getViagraOrderById = async (req, res) => {
-  const order = await viagraOrderModel.findById(req.params.id);
-  if (!order) {
-    return res.json({ status: false, message: 'Viagra order not found' });
-  }
-  res.json({ status: true, data: order });
+	const order = await viagraOrderModel.findById(req.params.id);
+	if (!order) {
+		return res.json({ status: false, message: "Viagra order not found" });
+	}
+	res.json({ status: true, data: order });
 };
 export const getViagraOrderByCustomer = async (req, res) => {
-  const orders = await viagraOrderModel.find({ email: req.params.id }).sort({
-    createdAt: -1,
-  });
-  if (!orders || orders.length === 0) {
-    return res.json({
-      status: false,
-      message: 'No Viagra orders found for this customer',
-    });
-  }
-  res.json({ status: true, data: orders });
+	const orders = await viagraOrderModel.find({ email: req.params.id }).sort({
+		createdAt: -1,
+	});
+	if (!orders || orders.length === 0) {
+		return res.json({
+			status: false,
+			message: "No Viagra orders found for this customer",
+		});
+	}
+	res.json({ status: true, data: orders });
 };
 export const updateViagraOrder = async (req, res) => {
-  const { id } = req.params;
-  const { orderStatus, paymentStatus, site } = req.body;
+	const { id } = req.params;
+	const { orderStatus, paymentStatus, site } = req.body;
 
-  // check if the order exists
-  const order = await viagraOrderModel.findById(id);
-  if (!order) {
-    return res.send({ status: false, message: 'Viagra order not found' });
-  }
+	// check if the order exists
+	const order = await viagraOrderModel.findById(id);
+	if (!order) {
+		return res.send({ status: false, message: "Viagra order not found" });
+	}
 
-  order.orderStatus = orderStatus;
-  order.paymentStatus = paymentStatus;
-  const { firstName, lastName, email, items, totalAmount } = order;
-  const updatedOrder = await order.save();
+	order.orderStatus = orderStatus;
+	order.paymentStatus = paymentStatus;
+	const { firstName, lastName, email, items, totalAmount } = order;
+	const updatedOrder = await order.save();
 
-  const htmlContentUser = await updateOrderEmailTemplate({
-    firstName,
-    lastName,
-    email,
-    orderId: order._id,
-    status: orderStatus,
-    items,
-    totalAmount,
-  });
-  const user = {
-    email,
-  };
-  try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContentUser,
-      'Werk de bestelstatus bij'
-    );
-  } catch (err) {
-    console.log(err);
-  }
+	const htmlContentUser = await updateOrderEmailTemplate({
+		firstName,
+		lastName,
+		email,
+		orderId: order._id,
+		status: orderStatus,
+		items,
+		totalAmount,
+	});
+	const user = {
+		email,
+	};
+	try {
+		await new Email(user, site).sendEmailTemplate(
+			htmlContentUser,
+			"Werk de bestelstatus bij"
+		);
+	} catch (err) {
+		console.log(err);
+	}
 
-  res.status(200).send({
-    status: true,
-    data: updatedOrder,
-    message: 'Viagra order updated successfully',
-  });
+	res.status(200).send({
+		status: true,
+		data: updatedOrder,
+		message: "Viagra order updated successfully",
+	});
 };
 
 export const deleteViagraOrder = async (req, res) => {
-  const orderId = req.params.id;
+	const orderId = req.params.id;
 
-  const order = await viagraOrderModel.findById(orderId);
-  if (!order) {
-    return res.json({ status: false, message: 'Viagra order not found' });
-  }
+	const order = await viagraOrderModel.findById(orderId);
+	if (!order) {
+		return res.json({ status: false, message: "Viagra order not found" });
+	}
 
-  await viagraOrderModel.deleteOne({ _id: orderId });
-  res.json({ status: true, message: 'Viagra order deleted successfully' });
+	await viagraOrderModel.deleteOne({ _id: orderId });
+	res.json({ status: true, message: "Viagra order deleted successfully" });
 };
