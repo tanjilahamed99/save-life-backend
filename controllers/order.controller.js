@@ -46,6 +46,8 @@ export const createOrder = async (req, res) => {
     phone,
     items,
     site,
+    paymentStatus,
+    paymentMethod,
   } = req.body;
 
   // Calculate total amount and verify stock
@@ -53,7 +55,7 @@ export const createOrder = async (req, res) => {
   for (const item of items) {
     subtotal += item.price * item.quantity;
   }
-
+  const fullName = firstName + ' ' + lastName;
   const userData = await UserModel.findOne({ email: user.email });
 
   const shipping = 5;
@@ -77,8 +79,8 @@ export const createOrder = async (req, res) => {
     country,
     shipping,
     subtotal,
-    paymentMethod: 'ideal',
-    paymentStatus: 'pending',
+    paymentMethod,
+    paymentStatus,
     site,
   });
 
@@ -149,7 +151,158 @@ export const createOrder = async (req, res) => {
 
   // Usage:
   sendOrderEmail({
-    name: userData.name,
+    name: userData.name || fullName,
+    email,
+    items,
+    site,
+    totalAmount,
+    orderId: order._id,
+    adminOrderLink: 'https://benzobestellen.com/admin',
+    orderDate: order.createdAt,
+    support_url:
+      site === 'https://benzobestellen.com'
+        ? 'https://benzobestellen.com/contact'
+        : 'https://zolpidem-kopen.net/contact',
+  });
+
+  res.send({
+    status: true,
+    data: order,
+    message: 'Order created successfully',
+  });
+};
+export const createCustomOrder = async (req, res) => {
+  const {
+    email,
+    firstName,
+    lastName,
+    address,
+    city,
+    country,
+    postalCode,
+    phone,
+    items,
+    site,
+    paymentStatus,
+    paymentMethod,
+  } = req.body;
+
+  // Calculate total amount and verify stock
+  let subtotal = 0;
+  for (const item of items) {
+    subtotal += item.price * item.quantity;
+  }
+  const fullName = firstName + ' ' + lastName;
+  const userData = await UserModel.findOne({ email: email });
+
+  let user;
+
+  if (!userData) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('1234', salt);
+
+    // Create user
+    user = await UserModel.create({
+      fullName,
+      email,
+      password: hashedPassword,
+    });
+  }
+
+  const shipping = 5;
+
+  const totalAmount = subtotal + shipping;
+
+  const order = await OrderModel.create({
+    firstName,
+    lastName,
+    phone,
+    user: userData || user,
+    email,
+    items: items.map((item) => ({
+      ...item,
+      price: item.price,
+    })),
+    totalAmount,
+    address,
+    city,
+    postalCode,
+    country,
+    shipping,
+    subtotal,
+    paymentMethod,
+    paymentStatus,
+    site,
+  });
+
+  // const admins = await AdminModel.find({});
+
+  const sendOrderEmail = async ({
+    name,
+    email,
+    site,
+    orderId,
+    adminOrderLink,
+    items,
+    orderDate,
+    support_url,
+    totalAmount,
+  }) => {
+    // Prepare the HTML content for the user and admin email templates
+    const htmlContentUser = await newOrderEmailTemplate({
+      name,
+      site,
+      support_url,
+      orderId,
+    });
+
+    const htmlContentAdmin = await newOrderAdminTemplate({
+      name,
+      email,
+      items,
+      site,
+      totalAmount,
+      orderId,
+      adminOrderLink,
+      orderDate,
+    });
+
+    // Create an array of promises to send emails in parallel
+    const emailPromises = [
+      new Email(userData || user, site).sendEmailTemplate(
+        htmlContentUser,
+        'Ja! Uw bestelling is succesvol geplaatst!'
+      ),
+
+      new Email('', site).sendEmailTemplate(
+        htmlContentAdmin,
+        'Nieuwe bestelling plaatsen bij Admin'
+      ),
+
+      // ...admins
+      //   .filter((admin) => admin.email !== 'admin@gmail.com')
+      //   .map((admin) =>
+      //     new Email(admin, site).sendEmailTemplate(
+      //       htmlContentAdmin,
+      //       'New Order Place to Admin'
+      //     )
+      //   ),
+    ];
+
+    try {
+      // Wait for both emails to be sent
+      await Promise.all(emailPromises);
+      console.log('Emails sent successfully');
+    } catch (err) {
+      // Detailed error logging
+      console.error('Error sending emails:', err);
+      // Optional: Send failure notifications or handle retries
+    }
+  };
+
+  // Usage:
+  sendOrderEmail({
+    name: fullName,
     email,
     items,
     site,
@@ -171,7 +324,7 @@ export const createOrder = async (req, res) => {
 };
 
 export const orderUpdate = async (req, res) => {
-  const { _id, orderStatus, paymentStatus } = req.body;
+  const { _id, orderStatus, paymentStatus, site } = req.body;
 
   const order = await OrderModel.findById({ _id });
   if (!order) {
@@ -180,6 +333,28 @@ export const orderUpdate = async (req, res) => {
 
   order.orderStatus = orderStatus;
   order.paymentStatus = paymentStatus;
+  const { firstName, lastName, email, items, totalAmount } = order;
+
+  const htmlContentUser = await updateOrderEmailTemplate({
+    firstName,
+    lastName,
+    email,
+    orderId: order._id,
+    status: orderStatus,
+    items,
+    totalAmount,
+  });
+  const user = {
+    email,
+  };
+  try {
+    await new Email(user, site).sendEmailTemplate(
+      htmlContentUser,
+      'Werk de bestelstatus bij'
+    );
+  } catch (err) {
+    console.log(err);
+  }
 
   const updatedOrder = await order.save();
   res

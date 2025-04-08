@@ -104,6 +104,23 @@ export const contactUsEmail = async (req, res) => {
 
   res.send({ status: true, message: 'Email sent' });
 };
+export const customerEmail = async (req, res) => {
+  const { name, email, subject, message, site } = req.body;
+  const htmlContent = await basicEmailTemplate({
+    message,
+    email,
+    name,
+    subject,
+  });
+
+  try {
+    await new Email(req.body, site).sendEmailTemplate(htmlContent, subject);
+  } catch (err) {
+    console.log(err);
+  }
+
+  res.send({ status: true, message: 'Email sent' });
+};
 //  email test
 export const sendWelcomeEmail = async (req, res) => {
   const user = req.body;

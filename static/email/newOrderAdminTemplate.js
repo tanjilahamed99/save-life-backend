@@ -104,7 +104,7 @@ export const newOrderAdminTemplate = async ({
       <p><strong>Klantnaam:</strong> ${name}</p>
       <p><strong>E-mailadres:</strong> <a href="mailto:${customerEmail}">${customerEmail}</a></p>
       <p><strong>Bestelnummer:</strong> ${orderId}</p>
-      <p><strong>Besteldatum:</strong> ${orderDate}</p>
+ 
 
       <h2>Besteloverzicht</h2>
       <table>
