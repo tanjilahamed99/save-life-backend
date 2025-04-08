@@ -16,7 +16,7 @@ export const newOrderAdminTemplate = async ({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nieuwe bestelling geplaatst</title>
+    <title>Nieuwe bestelling geplaatst - ${site}</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -28,8 +28,8 @@ export const newOrderAdminTemplate = async ({
 
       .email-container {
         max-width: 700px;
-        margin: auto;
-        background-color: #fff;
+        margin: 0 auto;
+        background-color: #ffffff;
         border-radius: 8px;
         padding: 30px;
       }
@@ -37,11 +37,13 @@ export const newOrderAdminTemplate = async ({
       h1 {
         color: #2c3e50;
         font-size: 24px;
+        margin-bottom: 10px;
       }
 
       p {
         font-size: 16px;
         line-height: 1.6;
+        margin: 8px 0;
       }
 
       table {
@@ -52,7 +54,7 @@ export const newOrderAdminTemplate = async ({
 
       th, td {
         padding: 12px;
-        border: 1px solid #ddd;
+        border: 1px solid #dddddd;
         text-align: left;
       }
 
@@ -65,10 +67,21 @@ export const newOrderAdminTemplate = async ({
         background-color: #f9f9f9;
       }
 
+      a.button-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #2e86de;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
       .footer {
         margin-top: 30px;
         font-size: 12px;
-        color: #777;
+        color: #777777;
         text-align: center;
       }
 
@@ -87,10 +100,9 @@ export const newOrderAdminTemplate = async ({
     <div class="email-container">
       <h1>Nieuwe bestelling geplaatst</h1>
 
-      <p>Er is zojuist een nieuwe bestelling geplaatst op <strong>${site}</strong>.</p>
-
+      <p><strong>Website:</strong> ${site}</p>
       <p><strong>Klantnaam:</strong> ${name}</p>
-      <p><strong>E-mailadres:</strong> ${customerEmail}</p>
+      <p><strong>E-mailadres:</strong> <a href="mailto:${customerEmail}">${customerEmail}</a></p>
       <p><strong>Bestelnummer:</strong> ${orderId}</p>
       <p><strong>Besteldatum:</strong> ${orderDate}</p>
 
@@ -124,14 +136,12 @@ export const newOrderAdminTemplate = async ({
         </tbody>
       </table>
 
-      <p>
-        <a href="${adminOrderLink}" style="color: #2c3e50; text-decoration: underline;">
-          Bekijk bestelling in dashboard
-        </a>
-      </p>
+      <a href="${adminOrderLink}" class="button-link" target="_blank">
+        Bekijk bestelling in dashboard
+      </a>
 
       <div class="footer">
-        Deze e-mail is automatisch gegenereerd door ${site}.
+        &copy; ${new Date().getFullYear()} ${site}. Deze e-mail is automatisch gegenereerd.
       </div>
     </div>
   </body>

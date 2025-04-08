@@ -1,10 +1,16 @@
-export const basicEmailTemplate = async ({ name, email, subject, message }) => {
+export const basicEmailTemplate = async ({
+  name = 'Onbekend',
+  email = '-',
+  subject = 'Geen onderwerp',
+  message = '',
+}) => {
   return `
 <!DOCTYPE html>
 <html lang="nl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Nieuw Bericht van Contactformulier</title>
     <style>
       body {
@@ -64,21 +70,22 @@ export const basicEmailTemplate = async ({ name, email, subject, message }) => {
   </head>
   <body>
     <div class="email-container">
-      <h2>Nieuw bericht van het contactformulier</h2>
+      <h2>Nieuw bericht ontvangen</h2>
 
-      <p>U heeft een nieuw bericht ontvangen via het contactformulier op <strong>benzobestellen.com</strong>.</p>
+      <p>Er is een nieuw bericht verzonden via het contactformulier van <strong>benzobestellen.com</strong>.</p>
 
       <div class="info-box">
-        <p><span class="info-label">Naam:</span> ${name}></p>
+        <p><span class="info-label">Naam:</span> ${name}</p>
         <p><span class="info-label">E-mailadres:</span> ${email}</p>
         <p><span class="info-label">Onderwerp:</span> ${subject}</p>
       </div>
 
       <p><strong>Bericht:</strong></p>
-      <p>${message}</p>
+      <p style="white-space: pre-line;">${message}</p>
 
       <div class="footer">
-        Deze e-mail is automatisch verzonden vanuit het contactformulier van benzobestellen.com.
+        Deze e-mail is automatisch gegenereerd door het systeem van benzobestellen.com.
+        Als u dit bericht onterecht heeft ontvangen, kunt u het veilig negeren.
       </div>
     </div>
   </body>
