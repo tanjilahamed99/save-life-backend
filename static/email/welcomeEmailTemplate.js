@@ -68,11 +68,11 @@ export const welcomeEmailTemplate = async ({ name, site }) => {
                   Bezoek je accountdashboard om je bestelling te plaatsen of te beheren.
                 </p>
 
-                <a href="<%= dashboard_url %>" class="button">Ga naar Mijn Account</a>
+                <a href=${site}/my-account class="button">Ga naar Mijn Account</a>
 
                 <p>
                   Heb je vragen? Onze klantenservice staat voor je klaar. Beantwoord deze e-mail of bezoek onze
-                  <a href="<%= support_url %>">helpdesk</a>.
+                  <a href=${site}/contact>helpdesk</a>.
                 </p>
 
                 <p>Met vriendelijke groet,<br />Het ${site} Team</p>

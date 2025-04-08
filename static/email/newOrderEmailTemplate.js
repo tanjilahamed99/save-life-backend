@@ -1,11 +1,4 @@
-export const newOrderEmailTemplate = async ({
-  firstName,
-  lastName,
-  site,
-  support_url,
-}) => {
-  const customerName = `${firstName} ${lastName}`;
-
+export const newOrderEmailTemplate = async ({ name, site, support_url }) => {
   return `
 <!DOCTYPE html>
 <html lang="nl">
@@ -61,7 +54,7 @@ export const newOrderEmailTemplate = async ({
     <div class="email-container">
       <h1>Bestelling ontvangen!</h1>
 
-      <p>Beste ${customerName},</p>
+      <p>Beste ${name},</p>
 
       <p>
         Bedankt voor uw bestelling bij <strong>${site}</strong>.
