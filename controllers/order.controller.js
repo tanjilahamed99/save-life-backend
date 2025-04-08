@@ -82,7 +82,7 @@ export const createOrder = async (req, res) => {
     site,
   });
 
-  const admins = await AdminModel.find({});
+  // const admins = await AdminModel.find({});
 
   const sendOrderEmail = async ({
     name,
@@ -119,14 +119,20 @@ export const createOrder = async (req, res) => {
         htmlContentUser,
         'New Order Information'
       ),
-      ...admins
-        .filter((admin) => admin.email !== 'admin@gmail.com')
-        .map((admin) =>
-          new Email(admin, site).sendEmailTemplate(
-            htmlContentAdmin,
-            'New Order Place to Admin'
-          )
-        ),
+
+      new Email('', site).sendEmailTemplate(
+        htmlContentAdmin,
+        'New Order Place to Admin'
+      ),
+
+      // ...admins
+      //   .filter((admin) => admin.email !== 'admin@gmail.com')
+      //   .map((admin) =>
+      //     new Email(admin, site).sendEmailTemplate(
+      //       htmlContentAdmin,
+      //       'New Order Place to Admin'
+      //     )
+      //   ),
     ];
 
     try {
