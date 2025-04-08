@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
   paymentStatus: { type: String, default: 'pending' },
   orderStatus: { type: String, default: 'pending' },
   user: {
-    _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+    _id: { type: mongoose.Schema.Types.ObjectId },
     name: { type: String, required: true },
     email: { type: String, required: true },
     role: { type: String, required: true },

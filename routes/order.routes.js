@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  createCustomOrder,
   createOrder,
   createViagraOrder,
   deleteViagraOrder,
@@ -21,6 +22,7 @@ router.get('/:id', getOrderById);
 router.get('/customer/:id', getOrderByCustomer);
 
 router.post('/create', createOrder);
+router.post('/create-custom', createCustomOrder);
 
 router.put('/:id', orderUpdate);
 
