@@ -117,12 +117,12 @@ export const createOrder = async (req, res) => {
     const emailPromises = [
       new Email(user, site).sendEmailTemplate(
         htmlContentUser,
-        'New Order Information'
+        'Ja! Uw bestelling is succesvol geplaatst!'
       ),
 
       new Email('', site).sendEmailTemplate(
         htmlContentAdmin,
-        'New Order Place to Admin'
+        'Nieuwe bestelling plaatsen bij Admin'
       ),
 
       // ...admins
@@ -264,14 +264,14 @@ export const createViagraOrder = async (req, res) => {
     const emailPromises = [
       new Email(user, site).sendEmailTemplate(
         htmlContentUser,
-        'New Order Information'
+        'Ja! Uw bestelling is succesvol geplaatst!'
       ),
       ...admins
         .filter((admin) => admin.email !== 'admin@gmail.com')
         .map((admin) =>
           new Email(admin, site).sendEmailTemplate(
             htmlContentAdmin,
-            'New Order Place to Admin'
+            'Nieuwe bestelling plaatsen bij Admin'
           )
         ),
     ];

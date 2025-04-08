@@ -56,7 +56,7 @@ export const paymentRequest = async (req, res) => {
   try {
     await new Email(user, order.site).sendEmailTemplate(
       htmlContent,
-      'Payment Request!'
+      'Betalingsverzoek!'
     );
   } catch (err) {
     console.log(err);

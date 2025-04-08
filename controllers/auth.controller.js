@@ -204,7 +204,7 @@ export const forgetPassword = async (req, res) => {
 			try {
 				await new Email(user, site).sendEmailTemplate(
 					htmlContent,
-					"Password Reset OTP"
+					"Wachtwoord resetten OTP"
 				);
 			} catch (err) {
 				console.log(err);
