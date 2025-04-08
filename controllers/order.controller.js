@@ -100,6 +100,7 @@ export const createOrder = async (req, res) => {
       name,
       site,
       support_url,
+      orderId,
     });
 
     const htmlContentAdmin = await newOrderAdminTemplate({

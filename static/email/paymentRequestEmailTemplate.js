@@ -16,12 +16,14 @@ export const paymentRequestEmailTemplate = async ({
         <tr>
           <td>${item.name}</td>
           <td>${item.quantity}</td>
-          <td>€${item.price}</td>
-          <td>€${(item.quantity * item.price)?.toFixed(2)}</td>
+          <td>€${item.price.toFixed(2)}</td>
+          <td>€${(item.quantity * item.price).toFixed(2)}</td>
         </tr>
       `
     )
     .join('');
+
+  const currentYear = new Date().getFullYear();
 
   return `
 <!DOCTYPE html>
@@ -29,14 +31,14 @@ export const paymentRequestEmailTemplate = async ({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bestelbevestiging - ${site}</title>
+    <title>Betaalverzoek - ${site}</title>
     <style>
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f7;
         margin: 0;
         padding: 0;
-        color: #333333;
+        color: #333;
       }
       .email-wrapper {
         max-width: 600px;
@@ -70,14 +72,18 @@ export const paymentRequestEmailTemplate = async ({
         margin-top: 20px;
         padding: 12px 24px;
         background-color: #2e86de;
-        color: #ffffff;
+        color: #ffffff !important;
         text-decoration: none;
         border-radius: 5px;
+        font-weight: bold;
+      }
+      .secondary-button {
+        background-color: #10b981;
       }
       .footer {
         margin-top: 30px;
         font-size: 12px;
-        color: #777777;
+        color: #777;
         text-align: center;
       }
       @media (max-width: 600px) {
@@ -93,9 +99,9 @@ export const paymentRequestEmailTemplate = async ({
   <body>
     <div class="email-wrapper">
       <h1>Bedankt voor uw bestelling, ${name}!</h1>
-      <p>Uw bestelling is succesvol ontvangen op ${orderDate}.</p>
+      <p>Uw bestelling is succesvol ontvangen op <strong>${orderDate}</strong>.</p>
 
-      <h3>Bestelgegevens:</h3>
+      <h3>Besteloverzicht:</h3>
       <table>
         <thead>
           <tr>
@@ -109,32 +115,50 @@ export const paymentRequestEmailTemplate = async ({
           ${itemsRows}
           <tr class="total">
             <td colspan="3">Subtotaal</td>
-            <td>€${subtotal}</td>
+            <td>€${subtotal.toFixed(2)}</td>
           </tr>
           <tr class="total">
             <td colspan="3">Verzendkosten</td>
-            <td>€${shipping}</td>
+            <td>€${shipping.toFixed(2)}</td>
           </tr>
           <tr class="total">
             <td colspan="3">Totaal</td>
-            <td>€${total}</td>
+            <td>€${total.toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
 
-      <p>U kunt uw betaling nu voltooien door op onderstaande knop te klikken:</p>
-      <a href="${payment_url}" class="button">💳 Betaal nu</a>
+      <p>U kunt uw betaling veilig afronden via onderstaande knop:</p>
+      <a href="${payment_url}" class="button" target="_blank" rel="noopener noreferrer">Betaal Nu</a>
 
-      <p>Uw bestelling wordt verwerkt zodra de betaling is ontvangen. U ontvangt een verzendbevestiging per e-mail.</p>
+      <p>Na ontvangst van de betaling starten we direct met het verwerken en verzenden van uw bestelling.</p>
 
-      <a href="${order_url}" class="button" style="background-color: #10b981; margin-top: 10px;">📦 Bekijk uw bestelling</a>
+      <a href="${order_url}" class="button secondary-button" target="_blank" rel="noopener noreferrer">Bekijk uw bestelling</a>
 
       <div class="footer">
-        <p>© ${new Date().getFullYear()} ${site} – Alle rechten voorbehouden.</p>
-        <p>Vragen? <a href="${support_url}">Neem contact op met onze klantenservice</a>.</p>
+        <p>© ${currentYear} ${site}. Alle rechten voorbehouden.</p>
+        <p>
+          Heeft u vragen? Neem gerust contact op met onze
+          <a href="${support_url}" target="_blank" rel="noopener noreferrer">klantenservice</a>.
+        </p>
+        <p style="margin-top: 8px;">
+          ${site} • Jouw vertrouwde webshop
+        </p>
       </div>
     </div>
   </body>
 </html>
+<!-- Fallback plain-text version -->
+<!--
+Bedankt voor uw bestelling bij ${site}, ${name}!
+Uw bestelling is ontvangen op ${orderDate}.
+
+Bekijk uw bestelling: ${order_url}
+Betaal nu: ${payment_url}
+
+Totaal: €${total.toFixed(2)}
+
+Vragen? ${support_url}
+-->
 `;
 };

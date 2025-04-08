@@ -4,8 +4,8 @@ export const updateOrderEmailTemplate = async ({
   email,
   orderId,
   status,
-  items,
-  totalAmount,
+  items = [],
+  totalAmount = 0,
 }) => {
   let subject = '';
   let statusMessage = '';
@@ -184,10 +184,10 @@ export const updateOrderEmailTemplate = async ({
         <p>Als u vragen heeft of hulp nodig heeft, neem dan gerust contact met ons op.</p>
         <p>Bedankt voor uw aankoop!</p>
 
-        <a href="#" class="button">Volg uw bestelling</a>
+        <a href="https://benzobestellen.com/order-tracking/${orderId}" rel="noreferrer" class="button">Volg uw bestelling</a>
 
         <div class="footer">
-          Deze e-mail is automatisch gegenereerd door benzobestellen.com.
+          Deze e-mail is automatisch gegenereerd door benzobestellen.com. Als u geen berichten meer wilt ontvangen, kunt u zich afmelden via uw accountinstellingen.
         </div>
       </div>
     </body>
