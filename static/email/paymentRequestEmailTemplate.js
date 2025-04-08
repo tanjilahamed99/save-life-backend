@@ -17,7 +17,7 @@ export const paymentRequestEmailTemplate = async ({
           <td>${item.name}</td>
           <td>${item.quantity}</td>
           <td>€${item.price}</td>
-          <td>€${item.total}</td>
+          <td>€${(item.quantity * item.price)?.toFixed(2)}</td>
         </tr>
       `
     )
