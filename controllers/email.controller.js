@@ -106,6 +106,7 @@ export const contactUsEmail = async (req, res) => {
 };
 export const customerEmail = async (req, res) => {
   const { name, email, subject, message, site } = req.body;
+
   const htmlContent = await basicEmailTemplate({
     message,
     email,

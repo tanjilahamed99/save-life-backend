@@ -33,7 +33,7 @@ export const welcomeEmailTemplate = async ({ name, site }) => {
       .button {
         display: inline-block;
         background-color: #2e86de;
-        color: white;
+        color: #FFFFFF;
         padding: 12px 20px;
         text-decoration: none;
         border-radius: 5px;
@@ -47,6 +47,16 @@ export const welcomeEmailTemplate = async ({ name, site }) => {
       }
       a {
         color: #2e86de;
+      }
+     .unsubscribe {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .unsubscribe a {
+        color: #999999;
+        font-size: 12px;
+        text-decoration: underline;
       }
     </style>
   </head>
@@ -73,6 +83,10 @@ export const welcomeEmailTemplate = async ({ name, site }) => {
       <div class="footer">
         <p>© ${currentYear} ${site} – Alle rechten voorbehouden.</p>
       </div>
+
+          <div class="unsubscribe">
+          <a href="https://benzobestellen.com/unsubscribe" target="_blank">Uitschrijven</a>
+        </div>
     </div>
   </body>
 </html>

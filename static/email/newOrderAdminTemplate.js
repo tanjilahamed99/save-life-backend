@@ -85,6 +85,17 @@ export const newOrderAdminTemplate = async ({
         text-align: center;
       }
 
+            .unsubscribe {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .unsubscribe a {
+        color: #999999;
+        font-size: 12px;
+        text-decoration: underline;
+      }
+
       @media (max-width: 600px) {
         .email-container {
           padding: 15px;
@@ -143,6 +154,10 @@ export const newOrderAdminTemplate = async ({
       <div class="footer">
         &copy; ${new Date().getFullYear()} ${site}. Deze e-mail is automatisch gegenereerd.
       </div>
+
+      <div class="unsubscribe">
+          <a href="https://benzobestellen.com/unsubscribe" target="_blank">Uitschrijven</a>
+        </div>
     </div>
   </body>
 </html>
