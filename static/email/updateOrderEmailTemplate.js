@@ -7,26 +7,8 @@ export const updateOrderEmailTemplate = async ({
   items = [],
   totalAmount = 0,
 }) => {
-  let subject = '';
-  let statusMessage = '';
-
-  // Set the subject and status message based on the order status
-  if (status === 'Shipped') {
-    subject = `Uw bestelling is verzonden! Bestelnummer: ${orderId}`;
-    statusMessage = `Goed nieuws! Uw bestelling is verzonden en onderweg. Uw trackingnummer is: ${orderId}. U kunt uw bestelling volgen met dit nummer.`;
-  } else if (status === 'Delivered') {
-    subject = `Uw bestelling is geleverd! Bestelnummer: ${orderId}`;
-    statusMessage = `We zijn blij u te kunnen informeren dat uw bestelling is geleverd! We hopen dat u geniet van uw aankoop. Als u problemen heeft, neem dan gerust contact met ons op.`;
-  } else if (status === 'Pending') {
-    subject = `Uw bestelling is in afwachting! Bestelnummer: ${orderId}`;
-    statusMessage = `Uw bestelling is nog in behandeling. We verwerken deze en zullen u op de hoogte stellen zodra deze klaar is om te worden verzonden.`;
-  } else if (status === 'Cancelled') {
-    subject = `Uw bestelling is geannuleerd! Bestelnummer: ${orderId}`;
-    statusMessage = `Het spijt ons u te moeten informeren dat uw bestelling is geannuleerd. Als u vragen heeft, neem dan contact op met onze klantenservice.`;
-  } else if (status === 'Processing') {
-    subject = `Uw bestelling wordt verwerkt! Bestelnummer: ${orderId}`;
-    statusMessage = `Uw bestelling wordt momenteel verwerkt. We zullen u op de hoogte stellen zodra deze is verzonden.`;
-  }
+  const subject = 'Order Update - Order Status Changed';
+  const statusMessage = `Your order status has been updated to: ${status}.`;
 
   return `
   <!DOCTYPE html>
@@ -91,15 +73,26 @@ export const updateOrderEmailTemplate = async ({
           text-align: center;
         }
 
-        .button {
-          background-color: #3869d4;
-          color: #ffffff;
-          padding: 12px 25px;
-          text-decoration: none;
-          border-radius: 5px;
+        .unsubscribe {
+          margin-top: 20px;
+          text-align: center;
+        }
+
+        .unsubscribe a {
+          color: #999999;
+          font-size: 12px;
+          text-decoration: underline;
+        }
+
+        a.button-link {
           display: inline-block;
-          margin-top: 25px;
-          font-size: 16px;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #2e86de;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 4px;
+          font-weight: bold;
         }
 
         table {
@@ -140,54 +133,22 @@ export const updateOrderEmailTemplate = async ({
         <h2>Bestelnummer: ${orderId}</h2>
 
         <div class="order-summary">
-          <h3>Klantinformatie:</h3>
-          <p><strong>Naam:</strong> ${firstName} ${lastName}</p>
-          <p><strong>E-mail:</strong> ${email}</p>
-        </div>
-
-        <h3>Order Informatie:</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Aantal</th>
-              <th>Prijs</th>
-              <th>Totaal</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${items
-              ?.map(
-                (item) => `
-              <tr>
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>€${item.price.toFixed(2)}</td>
-                <td>€${(item.price * item.quantity).toFixed(2)}</td>
-              </tr>`
-              )
-              .join('')}
-            <tr class="total">
-              <td colspan="3">Totaal</td>
-              <td>€${totalAmount?.toFixed(2)}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="order-summary">
           <h3>Bestelstatus:</h3>
           <p><strong>Status:</strong> ${status}</p>
-          ${status === 'Shipped' ? `<p><strong>Trackingnummer:</strong> ${orderId}</p>` : ''}
+          <p>${statusMessage}</p>
         </div>
 
-        <p>${statusMessage}</p>
+        <p>Beste ${firstName} ${lastName},</p>
+        <p>Bedankt voor uw bestelling! We willen u op de hoogte stellen dat de status van uw bestelling is bijgewerkt.</p>
         <p>Als u vragen heeft of hulp nodig heeft, neem dan gerust contact met ons op.</p>
         <p>Bedankt voor uw aankoop!</p>
 
-        <a href="https://benzobestellen.com/order-tracking/${orderId}" rel="noreferrer" class="button">Volg uw bestelling</a>
-
         <div class="footer">
           Deze e-mail is automatisch gegenereerd door benzobestellen.com. Als u geen berichten meer wilt ontvangen, kunt u zich afmelden via uw accountinstellingen.
+        </div>
+
+        <div class="unsubscribe">
+          <a href="https://benzobestellen.com/unsubscribe" target="_blank">Uitschrijven</a>
         </div>
       </div>
     </body>

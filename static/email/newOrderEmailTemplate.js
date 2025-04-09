@@ -50,6 +50,16 @@ export const newOrderEmailTemplate = async ({
         color: #999999;
         text-align: center;
       }
+     .unsubscribe {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .unsubscribe a {
+        color: #999999;
+        font-size: 12px;
+        text-decoration: underline;
+      }
 
       @media (max-width: 600px) {
         .email-container {
@@ -92,6 +102,10 @@ export const newOrderEmailTemplate = async ({
       <div class="footer">
         &copy; ${new Date().getFullYear()} ${site}. Alle rechten voorbehouden.
       </div>
+
+       <div class="unsubscribe">
+          <a href="https://benzobestellen.com/unsubscribe" target="_blank">Uitschrijven</a>
+        </div>
     </div>
   </body>
 </html>

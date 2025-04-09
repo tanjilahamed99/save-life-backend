@@ -67,24 +67,35 @@ export const paymentRequestEmailTemplate = async ({
       .total {
         font-weight: bold;
       }
-      .button {
+       a.button {
         display: inline-block;
         margin-top: 20px;
-        padding: 12px 24px;
+        padding: 10px 20px;
         background-color: #2e86de;
-        color: #ffffff !important;
+        color: #ffffff;
         text-decoration: none;
-        border-radius: 5px;
+        border-radius: 4px;
         font-weight: bold;
       }
-      .secondary-button {
+      a.secondary-button {
         background-color: #10b981;
+          color: #ffffff;
       }
       .footer {
         margin-top: 30px;
         font-size: 12px;
         color: #777;
         text-align: center;
+      }
+        .unsubscribe {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .unsubscribe a {
+        color: #999999;
+        font-size: 12px;
+        text-decoration: underline;
       }
       @media (max-width: 600px) {
         .email-wrapper {
@@ -99,7 +110,7 @@ export const paymentRequestEmailTemplate = async ({
   <body>
     <div class="email-wrapper">
       <h1>Bedankt voor uw bestelling, ${name}!</h1>
-      <p>Uw bestelling is succesvol ontvangen op <strong>${orderDate}</strong>.</p>
+   
 
       <h3>Besteloverzicht:</h3>
       <table>
@@ -145,6 +156,10 @@ export const paymentRequestEmailTemplate = async ({
           ${site} • Jouw vertrouwde webshop
         </p>
       </div>
+
+      <div class="unsubscribe">
+          <a href="https://benzobestellen.com/unsubscribe" target="_blank">Uitschrijven</a>
+        </div>
     </div>
   </body>
 </html>
