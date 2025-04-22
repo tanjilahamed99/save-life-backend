@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
 	country: { type: String, required: true },
 	paymentMethod: { type: String, required: true },
 	paymentStatus: { type: String, default: "pending" },
-	orderStatus: { type: String, default: "pending" },
+	orderStatus: { type: String, default: "processing" },
 	user: {
 		_id: { type: mongoose.Schema.Types.ObjectId },
 		name: { type: String, required: true },
