@@ -342,26 +342,26 @@ export const orderUpdate = async (req, res) => {
   order.paymentStatus = paymentStatus;
   const { firstName, lastName, email, items, totalAmount } = order;
 
-  // const htmlContentUser = await updateOrderEmailTemplate({
-  //   firstName,
-  //   lastName,
-  //   email,
-  //   orderId: order._id,
-  //   status: orderStatus,
-  //   items,
-  //   totalAmount,
-  // });
-  // const user = {
-  //   email,
-  // };
-  // try {
-  //   await new Email(user, site).sendEmailTemplate(
-  //     htmlContentUser,
-  //     "Werk de bestelstatus bij"
-  //   );
-  // } catch (err) {
-  //   console.log(err);
-  // }
+  const htmlContentUser = await updateOrderEmailTemplate({
+    firstName,
+    lastName,
+    email,
+    orderId: order._id,
+    status: orderStatus,
+    items,
+    totalAmount,
+  });
+  const user = {
+    email,
+  };
+  try {
+    await new Email(user, site).sendEmailTemplate(
+      htmlContentUser,
+      "Werk de bestelstatus bij"
+    );
+  } catch (err) {
+    console.log(err);
+  }
 
   const updatedOrder = await order.save();
   res

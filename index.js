@@ -10,6 +10,8 @@ import { authRoutes } from "./routes/auth.routes.js";
 import { userRoutes } from "./routes/user.routes.js";
 import { emailRoutes } from "./routes/email.routes.js";
 import { AdminModel } from "./models/admin.model.js";
+import { paymentRoute } from "./routes/payment.routes.js";
+
 
 dotenv.config();
 
@@ -42,9 +44,9 @@ app.options("*", cors());
 
 // Logger setup
 winston.add(
-	new winston.transports.Console({
-		format: winston.format.simple(),
-	})
+  new winston.transports.Console({
+    format: winston.format.simple(),
+  })
 );
 
 app.get("/", (req, res) => res.send("Medicine Store API"));
@@ -63,16 +65,21 @@ app.use("/api/v1/users", userRoutes);
 // email routes
 app.use("/api/v1/email", emailRoutes);
 
+// payment
+app.use("/api/v1/payment", paymentRoute);
+
+
+
 const existAdmin = await AdminModel.findOne({ email: "admin@gmail.com" });
 // Hash password
 const salt = await bcrypt.genSalt(10);
 const hashedPassword = await bcrypt.hash("admin1234@", salt);
 if (!existAdmin) {
-	await AdminModel.create({
-		name: "Admin",
-		email: "admin@gmail.com",
-		password: hashedPassword,
-	});
+  await AdminModel.create({
+    name: "Admin",
+    email: "admin@gmail.com",
+    password: hashedPassword,
+  });
 }
 
 // if (!existViagraAdmin) {
@@ -84,8 +91,8 @@ if (!existAdmin) {
 
 // Error handling
 app.use((err, req, res, next) => {
-	winston.error(err.message);
-	res.status(201).send("Something went wrong");
+  winston.error(err.message);
+  res.status(201).send("Something went wrong");
 });
 
 // 404 Route
