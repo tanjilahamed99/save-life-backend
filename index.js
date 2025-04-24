@@ -11,6 +11,7 @@ import { userRoutes } from "./routes/user.routes.js";
 import { emailRoutes } from "./routes/email.routes.js";
 import { AdminModel } from "./models/admin.model.js";
 import { paymentRoute } from "./routes/payment.routes.js";
+import { productRoutes } from "./routes/product.routes.js";
 
 
 dotenv.config();
@@ -67,6 +68,9 @@ app.use("/api/v1/email", emailRoutes);
 
 // payment
 app.use("/api/v1/payment", paymentRoute);
+
+// products
+app.use("/api/v1/product", productRoutes);
 
 
 
