@@ -55,7 +55,6 @@ export const updateProfile = async (req, res) => {
     user.phone = phone || "";
     user.address = address || "";
     await user.save();
-
     res.status(200).json({ status: true, data: user });
   } catch (error) {
     res.status(202).json({ status: false, message: error.message });

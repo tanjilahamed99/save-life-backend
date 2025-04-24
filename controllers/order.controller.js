@@ -16,7 +16,7 @@ export const getAllOrders = async (req, res) => {
   res.json({ status: true, data: orders });
 };
 
-export const getOrderById = async (req, res) => {
+export const getOrderById = async (req, res) => { 
   console.log(req.params.id);
 
   // const order = await OrderModel.findById(req.params.id);
@@ -29,7 +29,7 @@ export const getOrderById = async (req, res) => {
 
 export const getOrderByCustomer = async (req, res) => {
   // show desc
-  const orders = await OrderModel.find({ email: req.params.id }).sort({
+  const orders = await OrderModel.find({ email: req.params.email }).sort({
     createdAt: -1,
   });
   if (!orders) {
