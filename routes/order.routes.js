@@ -19,7 +19,7 @@ const router = express.Router();
 router.get('/all', getAllOrders);
 
 router.get('/:id', getOrderById);
-router.get('/customer/:id', getOrderByCustomer);
+router.get('/customer/:email', getOrderByCustomer);
 
 router.post('/create', createOrder);
 router.post('/create-custom', createCustomOrder);
