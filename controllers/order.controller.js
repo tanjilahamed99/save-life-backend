@@ -3,7 +3,6 @@ import { newOrderEmailTemplate } from "../static/email/newOrderEmailTemplate.js"
 import { newOrderAdminTemplate } from "../static/email/newOrderAdminTemplate.js";
 import { viagraOrderModel } from "../models/viagra.order.js";
 import { updateOrderEmailTemplate } from "../static/email/updateOrderEmailTemplate.js";
-import { AdminModel } from "../models/admin.model.js";
 import viagraAdminModel from "../models/viagra.admin.js";
 import { UserModel } from "../models/user.model.js";
 import Email from "../lib/email/email.js";
