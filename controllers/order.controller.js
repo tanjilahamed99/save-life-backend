@@ -8,6 +8,7 @@ import viagraAdminModel from "../models/viagra.admin.js";
 import { UserModel } from "../models/user.model.js";
 import Email from "../lib/email/email.js";
 import bcrypt from "bcryptjs";
+import { sendBrevoCampaign } from "../lib/email/brevoEmail.js";
 
 export const getAllOrders = async (req, res) => {
   console.log("getAllOrders");
@@ -16,7 +17,7 @@ export const getAllOrders = async (req, res) => {
   res.json({ status: true, data: orders });
 };
 
-export const getOrderById = async (req, res) => { 
+export const getOrderById = async (req, res) => {
   console.log(req.params.id);
 
   // const order = await OrderModel.findById(req.params.id);
@@ -351,14 +352,15 @@ export const orderUpdate = async (req, res) => {
     items,
     totalAmount,
   });
-  const user = {
-    email,
-  };
+
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContentUser,
-      "Werk de bestelstatus bij"
-    );
+    await sendBrevoCampaign({
+      subject: "order status update",
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL, // Use your Brevo verified email
+      htmlContent: htmlContentUser,
+      to: email,
+    });
   } catch (err) {
     console.log(err);
   }
