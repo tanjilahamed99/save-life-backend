@@ -134,17 +134,17 @@ export const register = async (req, res) => {
       });
 
       try {
-        //         await new Email(user, site).sendEmailTemplate(
-        //           htmlContent,
-        //           `Welkom bij ${site}`
-        //         );
-        await sendBrevoCampaign({
-          subject: "Welkom bij Benzobestellen!",
-          senderName: "Benzobestellen",
-          senderEmail: process.env.BREVO_EMAIL,
-          htmlContent: htmlContent,
-          to: email,
-        });
+        await new Email(user, site).sendEmailTemplate(
+          htmlContent,
+          `Welkom bij ${site}`
+        );
+        // await sendBrevoCampaign({
+        //   subject: "Welkom bij Benzobestellen!",
+        //   senderName: "Benzobestellen",
+        //   senderEmail: process.env.BREVO_EMAIL,
+        //   htmlContent: htmlContent,
+        //   to: email,
+        // });
       } catch (err) {
         console.log(err);
       }
@@ -211,17 +211,17 @@ export const forgetPassword = async (req, res) => {
       const htmlContent = await generateOtpEmail({ name: user.name, otp: otp });
 
       try {
-        //         await new Email(user, site).sendEmailTemplate(
-        //           htmlContent,
-        //           "Wachtwoord resetten OTP"
-        //         );
-        await sendBrevoCampaign({
-          subject: "Je verificatiecode van Benzobestellen",
-          senderName: "Benzobestellen",
-          senderEmail: process.env.BREVO_EMAIL,
-          htmlContent: htmlContent,
-          to: email,
-        });
+        await new Email(user, site).sendEmailTemplate(
+          htmlContent,
+          "Wachtwoord resetten OTP"
+        );
+        // await sendBrevoCampaign({
+        //   subject: "Je verificatiecode van Benzobestellen",
+        //   senderName: "Benzobestellen",
+        //   senderEmail: process.env.BREVO_EMAIL,
+        //   htmlContent: htmlContent,
+        //   to: email,
+        // });
       } catch (err) {
         console.log(err);
       }
