@@ -131,7 +131,7 @@ export const createOrder = async (req, res) => {
         subject: "Ja! Uw bestelling is succesvol geplaatst!",
         senderName: "Benzobestellen",
         senderEmail: process.env.BREVO_EMAIL,
-        htmlContent: htmlContent,
+        htmlContent: htmlContentUser,
         to: user?.email,
       }),
 
@@ -143,7 +143,7 @@ export const createOrder = async (req, res) => {
         subject: "Nieuwe bestelling plaatsen bij Admin",
         senderName: "Benzobestellen",
         senderEmail: process.env.BREVO_EMAIL,
-        htmlContent: htmlContent,
+        htmlContent: htmlContentAdmin,
         to: user?.email,
       }),
 
@@ -619,4 +619,35 @@ export const deleteViagraOrder = async (req, res) => {
 
   await viagraOrderModel.deleteOne({ _id: orderId });
   res.json({ status: true, message: "Viagra order deleted successfully" });
+};
+
+export const getDiscount = async (req, res) => {
+  try {
+    const { discountCode } = req.body;
+
+    if (!discountCode) {
+      return res.send({
+        success: false,
+        message: "invalid request body",
+      });
+    }
+
+    // static discount code
+    const adminDiscount = "discount";
+
+    if (discountCode !== adminDiscount) {
+      return res.send({
+        success: false,
+        message: "Kortingscode komt niet overeen",
+      });
+    }
+
+    // static discount
+    return res.send({
+      success: true,
+      discount: 10,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
