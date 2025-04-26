@@ -82,17 +82,17 @@ export const paymentRequest = async (req, res) => {
   });
 
   try {
-    // await new Email(user, order.site).sendEmailTemplate(
-    //   htmlContent,
-    //   'Betalingsverzoek!'
-    // );
-    await sendBrevoCampaign({
-      subject: "Je Bestellingstatus is Bijgewerkt door het Benzobestellen Team",
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: order?.email,
-    });
+    await new Email(user, order.site).sendEmailTemplate(
+      htmlContent,
+      "Betalingsverzoek!"
+    );
+    // await sendBrevoCampaign({
+    //   subject: "Je Bestellingstatus is Bijgewerkt door het Benzobestellen Team",
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: order?.email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -132,15 +132,15 @@ export const contactUsEmail = async (req, res) => {
   });
 
   try {
-    // await new Email().sendEmailTemplate(htmlContent, subject);
+    await new Email().sendEmailTemplate(htmlContent, subject);
 
-    await sendBrevoCampaign({
-      subject: subject,
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: email,
-    });
+    // await sendBrevoCampaign({
+    //   subject: subject,
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -158,14 +158,14 @@ export const customerEmail = async (req, res) => {
   });
 
   try {
-    // await new Email(req.body, site).sendEmailTemplate(htmlContent, subject);
-    await sendBrevoCampaign({
-      subject: subject,
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: email,
-    });
+    await new Email(req.body, site).sendEmailTemplate(htmlContent, subject);
+    // await sendBrevoCampaign({
+    //   subject: subject,
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -181,17 +181,17 @@ export const sendWelcomeEmail = async (req, res) => {
   });
 
   try {
-    // await new Email(user, user.site).sendEmailTemplate(
-    //   htmlContent,
-    //   `Welkom bij ${user.site}`
-    // );
-    await sendBrevoCampaign({
-      subject: `Welkom bij ${user.site}`,
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: user?.email,
-    });
+    await new Email(user, user.site).sendEmailTemplate(
+      htmlContent,
+      `Welkom bij ${user.site}`
+    );
+    // await sendBrevoCampaign({
+    //   subject: `Welkom bij ${user.site}`,
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: user?.email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -218,17 +218,17 @@ export const paymentRequestEmail = async (req, res) => {
   });
 
   try {
-    // await new Email(user, site).sendEmailTemplate(
-    //   htmlContent,
-    //   "Payment Request"
-    // );
-    await sendBrevoCampaign({
-      subject: `Payment Request`,
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: user?.email,
-    });
+    await new Email(user, site).sendEmailTemplate(
+      htmlContent,
+      "Payment Request"
+    );
+    // await sendBrevoCampaign({
+    //   subject: `Payment Request`,
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: user?.email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -248,17 +248,17 @@ export const otpEmail = async (req, res) => {
   });
 
   try {
-    // await new Email(user, site).sendEmailTemplate(
-    //   htmlContent,
-    //   "Password Reset OTP"
-    // );
-    await sendBrevoCampaign({
-      subject: "Password Reset OTP",
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: user?.email,
-    });
+    await new Email(user, site).sendEmailTemplate(
+      htmlContent,
+      "Password Reset OTP"
+    );
+    // await sendBrevoCampaign({
+    //   subject: "Password Reset OTP",
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: user?.email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -275,17 +275,17 @@ export const updateOrderEmail = async (req, res) => {
   });
 
   try {
-    // await new Email(user, site).sendEmailTemplate(
-    //   htmlContent,
-    //   `Welkom bij ${site}`
-    // );
-    await sendBrevoCampaign({
-      subject: `Welkom bij ${site}`,
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL,
-      htmlContent: htmlContent,
-      to: user?.email,
-    });
+    await new Email(user, site).sendEmailTemplate(
+      htmlContent,
+      `Welkom bij ${site}`
+    );
+    // await sendBrevoCampaign({
+    //   subject: `Welkom bij ${site}`,
+    //   senderName: "Benzobestellen",
+    //   senderEmail: process.env.BREVO_EMAIL,
+    //   htmlContent: htmlContent,
+    //   to: user?.email,
+    // });
   } catch (err) {
     console.log(err);
   }
@@ -330,25 +330,22 @@ export const orderPlaceEmail = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      // new Email(user, site).sendEmailTemplate(htmlContentUser, ""),
-      sendBrevoCampaign({
-        subject: "Nieuwe Bestelinformatie",
-        senderName: "Benzobestellen",
-        senderEmail: process.env.BREVO_EMAIL,
-        htmlContent: htmlContent,
-        to: user?.email,
-      }),
-      sendBrevoCampaign({
-        subject: "Nieuwe Bestelling Ontvangen door Admin",
-        senderName: "Benzobestellen",
-        senderEmail: process.env.BREVO_EMAIL,
-        htmlContent: htmlContent,
-        to: user?.email,
-      }),
-      // new Email(user, site).sendEmailTemplate(
-      //   htmlContentAdmin,
-
-      // ),
+      new Email(user, site).sendEmailTemplate(htmlContentUser, ""),
+      // sendBrevoCampaign({
+      //   subject: "Nieuwe Bestelinformatie",
+      //   senderName: "Benzobestellen",
+      //   senderEmail: process.env.BREVO_EMAIL,
+      //   htmlContent: htmlContent,
+      //   to: user?.email,
+      // }),
+      // sendBrevoCampaign({
+      //   subject: "Nieuwe Bestelling Ontvangen door Admin",
+      //   senderName: "Benzobestellen",
+      //   senderEmail: process.env.BREVO_EMAIL,
+      //   htmlContent: htmlContent,
+      //   to: user?.email,
+      // }),
+      new Email(user, site).sendEmailTemplate(htmlContentAdmin),
     ];
 
     try {
