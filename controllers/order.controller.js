@@ -123,15 +123,29 @@ export const createOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(user, site).sendEmailTemplate(
+      //   htmlContentUser,
+      //   "Ja! Uw bestelling is succesvol geplaatst!"
+      // ),
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
+      // new Email("", site).sendEmailTemplate(
+      //   htmlContentAdmin,
+      //   "Nieuwe bestelling plaatsen bij Admin"
+      // ),
+      sendBrevoCampaign({
+        subject: "Nieuwe bestelling plaatsen bij Admin",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
 
       // ...admins
       //   .filter((admin) => admin.email !== 'admin@gmail.com')
@@ -274,15 +288,30 @@ export const createCustomOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(userData || user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(userData || user, site).sendEmailTemplate(
+      //   htmlContentUser,
+      //   "Ja! Uw bestelling is succesvol geplaatst!"
+      // ),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
+      // new Email("", site).sendEmailTemplate(
+      //   htmlContentAdmin,
+      //   "Nieuwe bestelling plaatsen bij Admin"
+      // ),
+
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+      sendBrevoCampaign({
+        subject: "Nieuwe bestelling plaatsen bij Admin",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
 
       // ...admins
       //   .filter((admin) => admin.email !== 'admin@gmail.com')
@@ -445,17 +474,32 @@ export const createViagraOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(user, site).sendEmailTemplate(
+      //   htmlContentUser,
+
+      // ),
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+
       ...admins
         .filter((admin) => admin.email !== "admin@gmail.com")
         .map((admin) =>
-          new Email(admin, site).sendEmailTemplate(
-            htmlContentAdmin,
-            "Nieuwe bestelling plaatsen bij Admin"
-          )
+          // new Email(admin, site).sendEmailTemplate(
+          //   htmlContentAdmin,
+          //   "Nieuwe bestelling plaatsen bij Admin"
+          // )
+          sendBrevoCampaign({
+            subject: "Nieuwe bestelling plaatsen bij Admin",
+            senderName: "Benzobestellen",
+            senderEmail: process.env.BREVO_EMAIL,
+            htmlContent: htmlContent,
+            to: admin?.email,
+          })
         ),
     ];
 
@@ -543,10 +587,17 @@ export const updateViagraOrder = async (req, res) => {
     email,
   };
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContentUser,
-      "Werk de bestelstatus bij"
-    );
+    // await new Email(user, site).sendEmailTemplate(
+    //   htmlContentUser,
+
+    // );
+    await sendBrevoCampaign({
+      subject: "Werk de bestelstatus bij",
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
