@@ -53,6 +53,7 @@ export const createOrder = async (req, res) => {
     site,
     paymentStatus,
     paymentMethod,
+    discountPrice,
   } = req.body;
 
   // Calculate total amount and verify stock
@@ -67,7 +68,7 @@ export const createOrder = async (req, res) => {
 
   const totalAmount = subtotal + shipping;
 
-  const order = await OrderModel.create({
+  const createOrder = {
     firstName,
     lastName,
     phone,
@@ -87,7 +88,13 @@ export const createOrder = async (req, res) => {
     paymentMethod,
     paymentStatus,
     site,
-  });
+  };
+
+  if (discountPrice) {
+    createOrder.discountPrice = discountPrice;
+  }
+
+  const order = await OrderModel.create(createOrder);
 
   // const admins = await AdminModel.find({});
 
