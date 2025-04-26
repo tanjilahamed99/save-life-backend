@@ -12,7 +12,7 @@ import { emailRoutes } from "./routes/email.routes.js";
 import { AdminModel } from "./models/admin.model.js";
 import { paymentRoute } from "./routes/payment.routes.js";
 import { productRoutes } from "./routes/product.routes.js";
-
+import { newsletterRoute } from "./routes/newsletter.route.js";
 
 dotenv.config();
 
@@ -72,7 +72,8 @@ app.use("/api/v1/payment", paymentRoute);
 // products
 app.use("/api/v1/product", productRoutes);
 
-
+// newsletter
+app.use("/api/v1/newsletter", newsletterRoute);
 
 const existAdmin = await AdminModel.findOne({ email: "admin@gmail.com" });
 // Hash password
