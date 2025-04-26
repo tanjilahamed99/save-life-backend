@@ -1,46 +1,74 @@
-import Email from '../lib/email/email.js';
-import { OrderModel } from '../models/order.model.js';
-import { UserModel } from '../models/user.model.js';
-import { basicEmailTemplate } from '../static/email/basicEmailTemplate.js';
-import { newOrderAdminTemplate } from '../static/email/newOrderAdminTemplate.js';
-import { newOrderEmailTemplate } from '../static/email/newOrderEmailTemplate.js';
-import { generateOtpEmail } from '../static/email/otp.template.js';
-import { paymentRequestEmailTemplate } from '../static/email/paymentRequestEmailTemplate.js';
-import { updateOrderEmailTemplate } from '../static/email/updateOrderEmailTemplate.js';
-import { welcomeEmailTemplate } from '../static/email/welcomeEmailTemplate.js';
+import { sendBrevoCampaign } from "../lib/email/brevoEmail.js";
+import Email from "../lib/email/email.js";
+import { OrderModel } from "../models/order.model.js";
+import { UserModel } from "../models/user.model.js";
+import { basicEmailTemplate } from "../static/email/basicEmailTemplate.js";
+import { newOrderAdminTemplate } from "../static/email/newOrderAdminTemplate.js";
+import { newOrderEmailTemplate } from "../static/email/newOrderEmailTemplate.js";
+import { generateOtpEmail } from "../static/email/otp.template.js";
+import { paymentRequestEmailTemplate } from "../static/email/paymentRequestEmailTemplate.js";
+import { updateOrderEmailTemplate } from "../static/email/updateOrderEmailTemplate.js";
+import { welcomeEmailTemplate } from "../static/email/welcomeEmailTemplate.js";
 
 export const paymentRequest = async (req, res) => {
-  const { orderId, pay_amount, expiry_date, payment_url } = req.body;
+  const { orderId, expiry_date, payment_url, date } = req.body;
 
   // Check if order ID and message is provided
-  //   if (!orderId) {
-  //     return res
-  //       .status(201)
-  //       .send({ status: false, message: 'Order ID is required' });
-  //   }
+  if (!orderId) {
+    return res
+      .status(201)
+      .send({ status: false, message: "Order ID is required" });
+  }
 
-  // // Check if order exists
-  const order = await OrderModel.findById(orderId);
+  // Check if order exists
+  const order = await OrderModel.findById({ _id: orderId });
 
   if (!order) {
-    return res.status(201).send({ status: false, message: 'Order not found' });
+    return res.status(201).send({ status: false, message: "Order not found" });
   }
+
+  let sendEmail = [];
+
+  if (order?.sendEmail.length > 0) {
+    sendEmail = [
+      {
+        expiry_date,
+        payment_url,
+        date,
+      },
+      ...order.sendEmail,
+    ];
+  } else {
+    sendEmail = [
+      {
+        expiry_date,
+        payment_url,
+        date,
+      },
+    ];
+  }
+
+  const update = {
+    $set: {
+      sendEmail,
+    },
+  };
+
+  await OrderModel.findByIdAndUpdate({ _id: orderId }, update);
 
   const user = await UserModel.findById(order.user);
 
   if (!user) {
-    return res.status(201).send({ status: false, message: 'User not found' });
+    return res.status(201).send({ status: false, message: "User not found" });
   }
-
   const htmlContent = await paymentRequestEmailTemplate({
     expiry_date,
-    pay_amount,
     payment_url,
-    name: order.firstName + ' ' + order.lastName,
+    name: order.firstName + " " + order.lastName,
     order_url:
-      order.site === 'https://benzobestellen.com'
-        ? 'https://benzobestellen.com/my-account'
-        : 'https://zolpidem-kopen.net/my-account',
+      order.site === "https://benzobestellen.com"
+        ? "https://benzobestellen.com/my-account"
+        : "https://zolpidem-kopen.net/my-account",
     orderDate: order.createdAt,
     site: order.site,
     order_items: order.items,
@@ -48,21 +76,28 @@ export const paymentRequest = async (req, res) => {
     subtotal: order?.subtotal,
     total: order.totalAmount,
     support_url:
-      order.site === 'https://benzobestellen.com'
-        ? 'https://benzobestellen.com/contact'
-        : 'https://zolpidem-kopen.net/contact',
+      order.site === "https://benzobestellen.com"
+        ? "https://benzobestellen.com/contact"
+        : "https://zolpidem-kopen.net/contact",
   });
 
   try {
-    await new Email(user, order.site).sendEmailTemplate(
-      htmlContent,
-      'Betalingsverzoek!'
-    );
+    // await new Email(user, order.site).sendEmailTemplate(
+    //   htmlContent,
+    //   'Betalingsverzoek!'
+    // );
+    await sendBrevoCampaign({
+      subject: "Je Bestellingstatus is Bijgewerkt door het Benzobestellen Team",
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: order?.email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Payment email sent' });
+  res.send({ success: true, message: "Payment email sent" });
 };
 
 export const marketingCampaign = async (req, res) => {
@@ -71,19 +106,19 @@ export const marketingCampaign = async (req, res) => {
   if (!email) {
     return res
       .status(201)
-      .send({ status: false, message: 'Email is required' });
+      .send({ status: false, message: "Email is required" });
   }
 
   await sendEmail({
     subject: `${name}, , Exclusieve Korting! 10% Korting op Uw Eerste Bestelling!`,
-    template_name: 'marketing_campaign_template',
+    template_name: "marketing_campaign_template",
     email,
     name,
   });
 
   res.send({
     status: true,
-    message: 'Marketing email sent',
+    message: "Marketing email sent",
   });
 };
 
@@ -97,12 +132,20 @@ export const contactUsEmail = async (req, res) => {
   });
 
   try {
-    await new Email().sendEmailTemplate(htmlContent, subject);
+    // await new Email().sendEmailTemplate(htmlContent, subject);
+
+    await sendBrevoCampaign({
+      subject: subject,
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 export const customerEmail = async (req, res) => {
   const { name, email, subject, message, site } = req.body;
@@ -115,12 +158,19 @@ export const customerEmail = async (req, res) => {
   });
 
   try {
-    await new Email(req.body, site).sendEmailTemplate(htmlContent, subject);
+    // await new Email(req.body, site).sendEmailTemplate(htmlContent, subject);
+    await sendBrevoCampaign({
+      subject: subject,
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 //  email test
 export const sendWelcomeEmail = async (req, res) => {
@@ -131,15 +181,22 @@ export const sendWelcomeEmail = async (req, res) => {
   });
 
   try {
-    await new Email(user, user.site).sendEmailTemplate(
-      htmlContent,
-      `Welkom bij ${user.site}`
-    );
+    // await new Email(user, user.site).sendEmailTemplate(
+    //   htmlContent,
+    //   `Welkom bij ${user.site}`
+    // );
+    await sendBrevoCampaign({
+      subject: `Welkom bij ${user.site}`,
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 
 export const paymentRequestEmail = async (req, res) => {
@@ -161,15 +218,22 @@ export const paymentRequestEmail = async (req, res) => {
   });
 
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContent,
-      'Payment Request'
-    );
+    // await new Email(user, site).sendEmailTemplate(
+    //   htmlContent,
+    //   "Payment Request"
+    // );
+    await sendBrevoCampaign({
+      subject: `Payment Request`,
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 
 export const otpEmail = async (req, res) => {
@@ -184,15 +248,22 @@ export const otpEmail = async (req, res) => {
   });
 
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContent,
-      'Password Reset OTP'
-    );
+    // await new Email(user, site).sendEmailTemplate(
+    //   htmlContent,
+    //   "Password Reset OTP"
+    // );
+    await sendBrevoCampaign({
+      subject: "Password Reset OTP",
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 
 export const updateOrderEmail = async (req, res) => {
@@ -200,19 +271,26 @@ export const updateOrderEmail = async (req, res) => {
   const htmlContent = await updateOrderEmailTemplate({
     name: user.name,
     site: site,
-    status: 'Processing',
+    status: "Processing",
   });
 
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContent,
-      `Welkom bij ${site}`
-    );
+    // await new Email(user, site).sendEmailTemplate(
+    //   htmlContent,
+    //   `Welkom bij ${site}`
+    // );
+    await sendBrevoCampaign({
+      subject: `Welkom bij ${site}`,
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };
 
 export const orderPlaceEmail = async (req, res) => {
@@ -252,23 +330,34 @@ export const orderPlaceEmail = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        'New Order Information'
-      ),
-      new Email(user, site).sendEmailTemplate(
-        htmlContentAdmin,
-        'New Order Place to Admin'
-      ),
+      // new Email(user, site).sendEmailTemplate(htmlContentUser, ""),
+      sendBrevoCampaign({
+        subject: "Nieuwe Bestelinformatie",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+      sendBrevoCampaign({
+        subject: "Nieuwe Bestelling Ontvangen door Admin",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+      // new Email(user, site).sendEmailTemplate(
+      //   htmlContentAdmin,
+
+      // ),
     ];
 
     try {
       // Wait for both emails to be sent
       await Promise.all(emailPromises);
-      console.log('Emails sent successfully');
+      console.log("Emails sent successfully");
     } catch (err) {
       // Detailed error logging
-      console.error('Error sending emails:', err);
+      console.error("Error sending emails:", err);
       // Optional: Send failure notifications or handle retries
     }
   };
@@ -286,5 +375,5 @@ export const orderPlaceEmail = async (req, res) => {
     // orderDate: order.createdAt,
   });
 
-  res.send({ status: true, message: 'Email sent' });
+  res.send({ status: true, message: "Email sent" });
 };

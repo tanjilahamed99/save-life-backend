@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   createCustomOrder,
   createOrder,
@@ -6,37 +6,38 @@ import {
   deleteViagraOrder,
   getAllOrders,
   getAllViagraOrders,
+  getDiscount,
   getOrderByCustomer,
   getOrderById,
   getViagraOrderByCustomer,
   getViagraOrderById,
   orderUpdate,
   updateViagraOrder,
-} from '../controllers/order.controller.js';
+} from "../controllers/order.controller.js";
 
 const router = express.Router();
 
-router.get('/all', getAllOrders);
+router.get("/all", getAllOrders);
 
-router.get('/:id', getOrderById);
-router.get('/customer/:email', getOrderByCustomer);
+router.get("/:id", getOrderById);
+router.get("/customer/:email", getOrderByCustomer);
 
-router.post('/create', createOrder);
-router.post('/create-custom', createCustomOrder);
-
-router.put('/:id', orderUpdate);
+router.post("/create", createOrder);
+router.post("/create-custom", createCustomOrder);
+router.put("/:id", orderUpdate);
+router.post("/discount", getDiscount);
 
 // viagra
-router.post('/create/viagra', createViagraOrder);
+router.post("/create/viagra", createViagraOrder);
 
-router.get('/viagra/all', getAllViagraOrders);
+router.get("/viagra/all", getAllViagraOrders);
 
-router.get('/viagra/:id', getViagraOrderById);
+router.get("/viagra/:id", getViagraOrderById);
 
-router.get('/viagra/customer/:id', getViagraOrderByCustomer);
+router.get("/viagra/customer/:id", getViagraOrderByCustomer);
 
-router.put('/viagra/:id', updateViagraOrder);
+router.put("/viagra/:id", updateViagraOrder);
 
-router.delete('/viagra/:id', deleteViagraOrder);
+router.delete("/viagra/:id", deleteViagraOrder);
 
 export const orderRoutes = router;

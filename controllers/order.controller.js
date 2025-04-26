@@ -53,6 +53,7 @@ export const createOrder = async (req, res) => {
     site,
     paymentStatus,
     paymentMethod,
+    discountPrice,
   } = req.body;
 
   // Calculate total amount and verify stock
@@ -67,7 +68,7 @@ export const createOrder = async (req, res) => {
 
   const totalAmount = subtotal + shipping;
 
-  const order = await OrderModel.create({
+  const createOrder = {
     firstName,
     lastName,
     phone,
@@ -87,7 +88,13 @@ export const createOrder = async (req, res) => {
     paymentMethod,
     paymentStatus,
     site,
-  });
+  };
+
+  if (discountPrice) {
+    createOrder.discountPrice = discountPrice;
+  }
+
+  const order = await OrderModel.create(createOrder);
 
   // const admins = await AdminModel.find({});
 
@@ -123,15 +130,29 @@ export const createOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(user, site).sendEmailTemplate(
+      //   htmlContentUser,
+      //   "Ja! Uw bestelling is succesvol geplaatst!"
+      // ),
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContentUser,
+        to: user?.email,
+      }),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
+      // new Email("", site).sendEmailTemplate(
+      //   htmlContentAdmin,
+      //   "Nieuwe bestelling plaatsen bij Admin"
+      // ),
+      sendBrevoCampaign({
+        subject: "Nieuwe bestelling plaatsen bij Admin",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContentAdmin,
+        to: user?.email,
+      }),
 
       // ...admins
       //   .filter((admin) => admin.email !== 'admin@gmail.com')
@@ -274,15 +295,30 @@ export const createCustomOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(userData || user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(userData || user, site).sendEmailTemplate(
+      //   htmlContentUser,
+      //   "Ja! Uw bestelling is succesvol geplaatst!"
+      // ),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
+      // new Email("", site).sendEmailTemplate(
+      //   htmlContentAdmin,
+      //   "Nieuwe bestelling plaatsen bij Admin"
+      // ),
+
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+      sendBrevoCampaign({
+        subject: "Nieuwe bestelling plaatsen bij Admin",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
 
       // ...admins
       //   .filter((admin) => admin.email !== 'admin@gmail.com')
@@ -445,17 +481,32 @@ export const createViagraOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+      // new Email(user, site).sendEmailTemplate(
+      //   htmlContentUser,
+
+      // ),
+      sendBrevoCampaign({
+        subject: "Ja! Uw bestelling is succesvol geplaatst!",
+        senderName: "Benzobestellen",
+        senderEmail: process.env.BREVO_EMAIL,
+        htmlContent: htmlContent,
+        to: user?.email,
+      }),
+
       ...admins
         .filter((admin) => admin.email !== "admin@gmail.com")
         .map((admin) =>
-          new Email(admin, site).sendEmailTemplate(
-            htmlContentAdmin,
-            "Nieuwe bestelling plaatsen bij Admin"
-          )
+          // new Email(admin, site).sendEmailTemplate(
+          //   htmlContentAdmin,
+          //   "Nieuwe bestelling plaatsen bij Admin"
+          // )
+          sendBrevoCampaign({
+            subject: "Nieuwe bestelling plaatsen bij Admin",
+            senderName: "Benzobestellen",
+            senderEmail: process.env.BREVO_EMAIL,
+            htmlContent: htmlContent,
+            to: admin?.email,
+          })
         ),
     ];
 
@@ -543,10 +594,17 @@ export const updateViagraOrder = async (req, res) => {
     email,
   };
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContentUser,
-      "Werk de bestelstatus bij"
-    );
+    // await new Email(user, site).sendEmailTemplate(
+    //   htmlContentUser,
+
+    // );
+    await sendBrevoCampaign({
+      subject: "Werk de bestelstatus bij",
+      senderName: "Benzobestellen",
+      senderEmail: process.env.BREVO_EMAIL,
+      htmlContent: htmlContent,
+      to: user?.email,
+    });
   } catch (err) {
     console.log(err);
   }
@@ -568,4 +626,35 @@ export const deleteViagraOrder = async (req, res) => {
 
   await viagraOrderModel.deleteOne({ _id: orderId });
   res.json({ status: true, message: "Viagra order deleted successfully" });
+};
+
+export const getDiscount = async (req, res) => {
+  try {
+    const { discountCode } = req.body;
+
+    if (!discountCode) {
+      return res.send({
+        success: false,
+        message: "invalid request body",
+      });
+    }
+
+    // static discount code
+    const adminDiscount = "discount";
+
+    if (discountCode !== adminDiscount) {
+      return res.send({
+        success: false,
+        message: "Kortingscode komt niet overeen",
+      });
+    }
+
+    // static discount
+    return res.send({
+      success: true,
+      discount: 10,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
