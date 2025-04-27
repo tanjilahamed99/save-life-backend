@@ -10,659 +10,655 @@ import bcrypt from "bcryptjs";
 import { sendBrevoCampaign } from "../lib/email/brevoEmail.js";
 
 export const getAllOrders = async (req, res) => {
-  console.log("getAllOrders");
-  const orders = await OrderModel.find({}).sort({ createdAt: -1 });
+	const orders = await OrderModel.find({}).sort({ createdAt: -1 });
 
-  res.json({ status: true, data: orders });
+	res.json({ status: true, data: orders });
 };
 
 export const getOrderById = async (req, res) => {
-  console.log(req.params.id);
+	console.log(req.params.id);
 
-  // const order = await OrderModel.findById(req.params.id);
-  const order = await OrderModel.findById({ _id: req.params.id });
-  if (!order) {
-    return res.json({ status: false, message: "Order not found" });
-  }
-  res.json({ status: true, data: order });
+	// const order = await OrderModel.findById(req.params.id);
+	const order = await OrderModel.findById({ _id: req.params.id });
+	if (!order) {
+		return res.json({ status: false, message: "Order not found" });
+	}
+	res.json({ status: true, data: order });
 };
 
 export const getOrderByCustomer = async (req, res) => {
-  // show desc
-  const orders = await OrderModel.find({ email: req.params.email }).sort({
-    createdAt: -1,
-  });
-  if (!orders) {
-    return res.json({ status: false, message: "No orders found" });
-  }
-  res.json({ status: true, data: orders });
+	// show desc
+	const orders = await OrderModel.find({ email: req.params.email }).sort({
+		createdAt: -1,
+	});
+	if (!orders) {
+		return res.json({ status: false, message: "No orders found" });
+	}
+	res.json({ status: true, data: orders });
 };
 
 export const createOrder = async (req, res) => {
-  const {
-    user,
-    email,
-    firstName,
-    lastName,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
-    items,
-    site,
-    paymentStatus,
-    paymentMethod,
-    discountPrice,
-  } = req.body;
+	const {
+		user,
+		email,
+		firstName,
+		lastName,
+		address,
+		city,
+		country,
+		postalCode,
+		phone,
+		items,
+		site,
+		paymentStatus,
+		paymentMethod,
+		discountPrice,
+	} = req.body;
 
-  // Calculate total amount and verify stock
-  let subtotal = 0;
-  for (const item of items) {
-    subtotal += item.price * item.quantity;
-  }
-  const fullName = firstName + " " + lastName;
-  const userData = await UserModel.findOne({ email: user.email });
+	// Calculate total amount and verify stock
+	let subtotal = 0;
+	for (const item of items) {
+		subtotal += item.price * item.quantity;
+	}
+	const fullName = firstName + " " + lastName;
+	const userData = await UserModel.findOne({ email: user.email });
 
-  const shipping = 5;
+	const shipping = 5;
 
-  const totalAmount = subtotal + shipping;
+	const totalAmount = subtotal + shipping;
 
-  const createOrder = {
-    firstName,
-    lastName,
-    phone,
-    user,
-    email,
-    items: items.map((item) => ({
-      ...item,
-      price: item.price,
-    })),
-    totalAmount,
-    address,
-    city,
-    postalCode,
-    country,
-    shipping,
-    subtotal,
-    paymentMethod,
-    paymentStatus,
-    site,
-  };
+	const createOrder = {
+		firstName,
+		lastName,
+		phone,
+		user,
+		email,
+		items: items.map((item) => ({
+			...item,
+			price: item.price,
+		})),
+		totalAmount,
+		address,
+		city,
+		postalCode,
+		country,
+		shipping,
+		subtotal,
+		paymentMethod,
+		paymentStatus,
+		site,
+	};
 
-  if (discountPrice) {
-    createOrder.discountPrice = discountPrice;
-  }
+	if (discountPrice) {
+		createOrder.discountPrice = discountPrice;
+	}
 
-  const order = await OrderModel.create(createOrder);
+	const order = await OrderModel.create(createOrder);
 
-  // const admins = await AdminModel.find({});
+	// const admins = await AdminModel.find({});
 
-  const sendOrderEmail = async ({
-    name,
-    email,
-    site,
-    orderId,
-    adminOrderLink,
-    items,
-    orderDate,
-    support_url,
-    totalAmount,
-  }) => {
-    // Prepare the HTML content for the user and admin email templates
-    const htmlContentUser = await newOrderEmailTemplate({
-      name,
-      site,
-      support_url,
-      orderId,
-    });
+	const sendOrderEmail = async ({
+		name,
+		email,
+		site,
+		orderId,
+		adminOrderLink,
+		items,
+		orderDate,
+		support_url,
+		totalAmount,
+	}) => {
+		// Prepare the HTML content for the user and admin email templates
+		const htmlContentUser = await newOrderEmailTemplate({
+			name,
+			site,
+			support_url,
+			orderId,
+		});
 
-    const htmlContentAdmin = await newOrderAdminTemplate({
-      name,
-      email,
-      items,
-      site,
-      totalAmount,
-      orderId,
-      adminOrderLink,
-      orderDate,
-    });
+		const htmlContentAdmin = await newOrderAdminTemplate({
+			name,
+			email,
+			items,
+			site,
+			totalAmount,
+			orderId,
+			adminOrderLink,
+			orderDate,
+		});
 
-    // Create an array of promises to send emails in parallel
-    const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
-      // sendBrevoCampaign({
-      //   subject: "Ja! Uw bestelling is succesvol geplaatst!",
-      //   senderName: "Benzobestellen",
-      //   senderEmail: process.env.BREVO_EMAIL,
-      //   htmlContent: htmlContentUser,
-      //   to: user?.email,
-      // }),
+		// Create an array of promises to send emails in parallel
+		const emailPromises = [
+			new Email(user, site).sendEmailTemplate(
+				htmlContentUser,
+				"Ja! Uw bestelling is succesvol geplaatst!"
+			),
+			// sendBrevoCampaign({
+			//   subject: "Ja! Uw bestelling is succesvol geplaatst!",
+			//   senderName: "Benzobestellen",
+			//   senderEmail: process.env.BREVO_EMAIL,
+			//   htmlContent: htmlContentUser,
+			//   to: user?.email,
+			// }),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
-      // sendBrevoCampaign({
-      //   subject: "Nieuwe bestelling plaatsen bij Admin",
-      //   senderName: "Benzobestellen",
-      //   senderEmail: process.env.BREVO_EMAIL,
-      //   htmlContent: htmlContentAdmin,
-      //   to: user?.email,
-      // }),
+			new Email("", site).sendEmailTemplate(
+				htmlContentAdmin,
+				"Nieuwe bestelling plaatsen bij Admin"
+			),
+			// sendBrevoCampaign({
+			//   subject: "Nieuwe bestelling plaatsen bij Admin",
+			//   senderName: "Benzobestellen",
+			//   senderEmail: process.env.BREVO_EMAIL,
+			//   htmlContent: htmlContentAdmin,
+			//   to: user?.email,
+			// }),
 
-      // ...admins
-      //   .filter((admin) => admin.email !== 'admin@gmail.com')
-      //   .map((admin) =>
-      //     new Email(admin, site).sendEmailTemplate(
-      //       htmlContentAdmin,
-      //       'New Order Place to Admin'
-      //     )
-      //   ),
-    ];
+			// ...admins
+			//   .filter((admin) => admin.email !== 'admin@gmail.com')
+			//   .map((admin) =>
+			//     new Email(admin, site).sendEmailTemplate(
+			//       htmlContentAdmin,
+			//       'New Order Place to Admin'
+			//     )
+			//   ),
+		];
 
-    try {
-      // Wait for both emails to be sent
-      await Promise.all(emailPromises);
-      console.log("Emails sent successfully");
-    } catch (err) {
-      // Detailed error logging
-      console.error("Error sending emails:", err);
-      // Optional: Send failure notifications or handle retries
-    }
-  };
+		try {
+			// Wait for both emails to be sent
+			await Promise.all(emailPromises);
+		} catch (err) {
+			// Detailed error logging
+			console.error("Error sending emails:", err);
+			// Optional: Send failure notifications or handle retries
+		}
+	};
 
-  // Usage:
-  sendOrderEmail({
-    name: userData.name || fullName,
-    email,
-    items,
-    site,
-    totalAmount,
-    orderId: order._id,
-    adminOrderLink: "https://benzobestellen.com/admin",
-    orderDate: order.createdAt,
-    support_url:
-      site === "https://benzobestellen.com"
-        ? "https://benzobestellen.com/contact"
-        : "https://zolpidem-kopen.net/contact",
-  });
+	// Usage:
+	sendOrderEmail({
+		name: userData.name || fullName,
+		email,
+		items,
+		site,
+		totalAmount,
+		orderId: order._id,
+		adminOrderLink: "https://benzobestellen.com/admin",
+		orderDate: order.createdAt,
+		support_url:
+			site === "https://benzobestellen.com"
+				? "https://benzobestellen.com/contact"
+				: "https://zolpidem-kopen.net/contact",
+	});
 
-  res.send({
-    status: true,
-    data: order,
-    message: "Order created successfully",
-  });
+	res.send({
+		status: true,
+		data: order,
+		message: "Order created successfully",
+	});
 };
 export const createCustomOrder = async (req, res) => {
-  const {
-    email,
-    firstName,
-    lastName,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
-    items,
-    site,
-    paymentStatus,
-    paymentMethod,
-  } = req.body;
+	const {
+		email,
+		firstName,
+		lastName,
+		address,
+		city,
+		country,
+		postalCode,
+		phone,
+		items,
+		site,
+		paymentStatus,
+		paymentMethod,
+	} = req.body;
 
-  // Calculate total amount and verify stock
-  let subtotal = 0;
-  for (const item of items) {
-    subtotal += item.price * item.quantity;
-  }
-  const fullName = firstName + " " + lastName;
-  const userData = await UserModel.findOne({ email: email });
+	// Calculate total amount and verify stock
+	let subtotal = 0;
+	for (const item of items) {
+		subtotal += item.price * item.quantity;
+	}
+	const fullName = firstName + " " + lastName;
+	const userData = await UserModel.findOne({ email: email });
 
-  let user;
+	let user;
 
-  if (!userData) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash("1234", salt);
+	if (!userData) {
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash("1234", salt);
 
-    // Create user
-    user = await UserModel.create({
-      name: fullName,
-      email,
-      password: hashedPassword,
-    });
-  }
+		// Create user
+		user = await UserModel.create({
+			name: fullName,
+			email,
+			password: hashedPassword,
+		});
+	}
 
-  const shipping = 5;
+	const shipping = 5;
 
-  const totalAmount = subtotal + shipping;
+	const totalAmount = subtotal + shipping;
 
-  const order = await OrderModel.create({
-    firstName,
-    lastName,
-    phone,
-    user: userData || user,
-    email,
-    items: items.map((item) => ({
-      ...item,
-      price: item.price,
-    })),
-    totalAmount,
-    address,
-    city,
-    postalCode,
-    country,
-    shipping,
-    subtotal,
-    paymentMethod,
-    paymentStatus,
-    site,
-  });
+	const order = await OrderModel.create({
+		firstName,
+		lastName,
+		phone,
+		user: userData || user,
+		email,
+		items: items.map((item) => ({
+			...item,
+			price: item.price,
+		})),
+		totalAmount,
+		address,
+		city,
+		postalCode,
+		country,
+		shipping,
+		subtotal,
+		paymentMethod,
+		paymentStatus,
+		site,
+	});
 
-  // const admins = await AdminModel.find({});
+	// const admins = await AdminModel.find({});
 
-  const sendOrderEmail = async ({
-    name,
-    email,
-    site,
-    orderId,
-    adminOrderLink,
-    items,
-    orderDate,
-    support_url,
-    totalAmount,
-  }) => {
-    // Prepare the HTML content for the user and admin email templates
-    const htmlContentUser = await newOrderEmailTemplate({
-      name,
-      site,
-      support_url,
-      orderId,
-    });
+	const sendOrderEmail = async ({
+		name,
+		email,
+		site,
+		orderId,
+		adminOrderLink,
+		items,
+		orderDate,
+		support_url,
+		totalAmount,
+	}) => {
+		// Prepare the HTML content for the user and admin email templates
+		const htmlContentUser = await newOrderEmailTemplate({
+			name,
+			site,
+			support_url,
+			orderId,
+		});
 
-    const htmlContentAdmin = await newOrderAdminTemplate({
-      name,
-      email,
-      items,
-      site,
-      totalAmount,
-      orderId,
-      adminOrderLink,
-      orderDate,
-    });
+		const htmlContentAdmin = await newOrderAdminTemplate({
+			name,
+			email,
+			items,
+			site,
+			totalAmount,
+			orderId,
+			adminOrderLink,
+			orderDate,
+		});
 
-    // Create an array of promises to send emails in parallel
-    const emailPromises = [
-      new Email(userData || user, site).sendEmailTemplate(
-        htmlContentUser,
-        "Ja! Uw bestelling is succesvol geplaatst!"
-      ),
+		// Create an array of promises to send emails in parallel
+		const emailPromises = [
+			new Email(userData || user, site).sendEmailTemplate(
+				htmlContentUser,
+				"Ja! Uw bestelling is succesvol geplaatst!"
+			),
 
-      new Email("", site).sendEmailTemplate(
-        htmlContentAdmin,
-        "Nieuwe bestelling plaatsen bij Admin"
-      ),
+			new Email("", site).sendEmailTemplate(
+				htmlContentAdmin,
+				"Nieuwe bestelling plaatsen bij Admin"
+			),
 
-      // sendBrevoCampaign({
-      //   subject: "Ja! Uw bestelling is succesvol geplaatst!",
-      //   senderName: "Benzobestellen",
-      //   senderEmail: process.env.BREVO_EMAIL,
-      //   htmlContent: htmlContent,
-      //   to: user?.email,
-      // }),
-      // sendBrevoCampaign({
-      //   subject: "Nieuwe bestelling plaatsen bij Admin",
-      //   senderName: "Benzobestellen",
-      //   senderEmail: process.env.BREVO_EMAIL,
-      //   htmlContent: htmlContent,
-      //   to: user?.email,
-      // }),
+			// sendBrevoCampaign({
+			//   subject: "Ja! Uw bestelling is succesvol geplaatst!",
+			//   senderName: "Benzobestellen",
+			//   senderEmail: process.env.BREVO_EMAIL,
+			//   htmlContent: htmlContent,
+			//   to: user?.email,
+			// }),
+			// sendBrevoCampaign({
+			//   subject: "Nieuwe bestelling plaatsen bij Admin",
+			//   senderName: "Benzobestellen",
+			//   senderEmail: process.env.BREVO_EMAIL,
+			//   htmlContent: htmlContent,
+			//   to: user?.email,
+			// }),
 
-      // ...admins
-      //   .filter((admin) => admin.email !== 'admin@gmail.com')
-      //   .map((admin) =>
-      //     new Email(admin, site).sendEmailTemplate(
-      //       htmlContentAdmin,
-      //       'New Order Place to Admin'
-      //     )
-      //   ),
-    ];
+			// ...admins
+			//   .filter((admin) => admin.email !== 'admin@gmail.com')
+			//   .map((admin) =>
+			//     new Email(admin, site).sendEmailTemplate(
+			//       htmlContentAdmin,
+			//       'New Order Place to Admin'
+			//     )
+			//   ),
+		];
 
-    try {
-      // Wait for both emails to be sent
-      await Promise.all(emailPromises);
-      console.log("Emails sent successfully");
-    } catch (err) {
-      // Detailed error logging
-      console.error("Error sending emails:", err);
-      // Optional: Send failure notifications or handle retries
-    }
-  };
+		try {
+			// Wait for both emails to be sent
+			await Promise.all(emailPromises);
+		} catch (err) {
+			// Detailed error logging
+			console.error("Error sending emails:", err);
+			// Optional: Send failure notifications or handle retries
+		}
+	};
 
-  // Usage:
-  sendOrderEmail({
-    name: fullName,
-    email,
-    items,
-    site,
-    totalAmount,
-    orderId: order._id,
-    adminOrderLink: "https://benzobestellen.com/admin",
-    orderDate: order.createdAt,
-    support_url:
-      site === "https://benzobestellen.com"
-        ? "https://benzobestellen.com/contact"
-        : "https://zolpidem-kopen.net/contact",
-  });
+	// Usage:
+	sendOrderEmail({
+		name: fullName,
+		email,
+		items,
+		site,
+		totalAmount,
+		orderId: order._id,
+		adminOrderLink: "https://benzobestellen.com/admin",
+		orderDate: order.createdAt,
+		support_url:
+			site === "https://benzobestellen.com"
+				? "https://benzobestellen.com/contact"
+				: "https://zolpidem-kopen.net/contact",
+	});
 
-  res.send({
-    status: true,
-    data: order,
-    message: "Order created successfully",
-  });
+	res.send({
+		status: true,
+		data: order,
+		message: "Order created successfully",
+	});
 };
 
 export const orderUpdate = async (req, res) => {
-  const { orderStatus, paymentStatus, site } = req.body;
-  const { id } = req.params;
+	const { orderStatus, paymentStatus, site } = req.body;
+	const { id } = req.params;
 
-  const order = await OrderModel.findById({ _id: id });
+	const order = await OrderModel.findById({ _id: id });
 
-  if (!order) {
-    return res.send({ status: false, message: "Order not found" });
-  }
+	if (!order) {
+		return res.send({ status: false, message: "Order not found" });
+	}
 
-  order.orderStatus = orderStatus;
-  order.paymentStatus = paymentStatus;
-  const { firstName, lastName, email, items, totalAmount } = order;
+	order.orderStatus = orderStatus;
+	order.paymentStatus = paymentStatus;
+	const { firstName, lastName, email, items, totalAmount } = order;
 
-  const htmlContentUser = await updateOrderEmailTemplate({
-    firstName,
-    lastName,
-    email,
-    orderId: order._id,
-    status: orderStatus,
-    items,
-    totalAmount,
-  });
+	const htmlContentUser = await updateOrderEmailTemplate({
+		firstName,
+		lastName,
+		email,
+		orderId: order._id,
+		status: orderStatus,
+		items,
+		totalAmount,
+	});
 
-  try {
-    await sendBrevoCampaign({
-      subject: "order status update",
-      senderName: "Benzobestellen",
-      senderEmail: process.env.BREVO_EMAIL, // Use your Brevo verified email
-      htmlContent: htmlContentUser,
-      to: email,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+	try {
+		await sendBrevoCampaign({
+			subject: "order status update",
+			senderName: "Benzobestellen",
+			senderEmail: process.env.BREVO_EMAIL, // Use your Brevo verified email
+			htmlContent: htmlContentUser,
+			to: email,
+		});
+	} catch (err) {
+		console.log(err);
+	}
 
-  const updatedOrder = await order.save();
-  res
-    .status(200)
-    .send({ status: true, data: updatedOrder, message: "Order updated" });
+	const updatedOrder = await order.save();
+	res
+		.status(200)
+		.send({ status: true, data: updatedOrder, message: "Order updated" });
 };
 
 export const deleteOrder = async (req, res) => {
-  const { id } = req.params;
+	const { id } = req.params;
 
-  if (!id) {
-    return res.send({
-      success: false,
-      message: "order id required",
-    });
-  }
-  const result = await OrderModel.deleteOne({ _id: id });
-  res.status(200).send({ status: true, result, message: "Order deleted" });
+	if (!id) {
+		return res.send({
+			success: false,
+			message: "order id required",
+		});
+	}
+	const result = await OrderModel.deleteOne({ _id: id });
+	res.status(200).send({ status: true, result, message: "Order deleted" });
 };
 
 // viagra
 export const createViagraOrder = async (req, res) => {
-  const {
-    user,
-    email,
-    firstName,
-    lastName,
-    address,
-    city,
-    country,
-    postalCode,
-    phone,
-    items,
-    site,
-    support_url,
-  } = req.body;
+	const {
+		user,
+		email,
+		firstName,
+		lastName,
+		address,
+		city,
+		country,
+		postalCode,
+		phone,
+		items,
+		site,
+		support_url,
+	} = req.body;
 
-  // Calculate total amount and verify stock
-  let totalAmount = 0;
-  for (const item of items) {
-    totalAmount += item.price * item.quantity;
-  }
+	// Calculate total amount and verify stock
+	let totalAmount = 0;
+	for (const item of items) {
+		totalAmount += item.price * item.quantity;
+	}
 
-  const order = await viagraOrderModel.create({
-    firstName,
-    lastName,
-    phone,
-    user,
-    email,
-    items: items.map((item) => ({
-      ...item,
-      price: item.price,
-    })),
-    totalAmount,
-    address,
-    city,
-    postalCode,
-    country,
-    paymentMethod: "ideal",
-    paymentStatus: "pending",
-    site,
-  });
-  const admins = await viagraAdminModel.find({});
+	const order = await viagraOrderModel.create({
+		firstName,
+		lastName,
+		phone,
+		user,
+		email,
+		items: items.map((item) => ({
+			...item,
+			price: item.price,
+		})),
+		totalAmount,
+		address,
+		city,
+		postalCode,
+		country,
+		paymentMethod: "ideal",
+		paymentStatus: "pending",
+		site,
+	});
+	const admins = await viagraAdminModel.find({});
 
-  const sendOrderEmail = async ({
-    name,
-    email,
-    site,
-    orderId,
-    adminOrderLink,
-    items,
-    orderDate,
-    totalAmount,
-    support_url,
-  }) => {
-    // Prepare the HTML content for the user and admin email templates
-    const htmlContentUser = await newOrderEmailTemplate({
-      name,
-      site,
-      support_url,
-    });
+	const sendOrderEmail = async ({
+		name,
+		email,
+		site,
+		orderId,
+		adminOrderLink,
+		items,
+		orderDate,
+		totalAmount,
+		support_url,
+	}) => {
+		// Prepare the HTML content for the user and admin email templates
+		const htmlContentUser = await newOrderEmailTemplate({
+			name,
+			site,
+			support_url,
+		});
 
-    const htmlContentAdmin = await newOrderAdminTemplate({
-      name,
-      email,
-      items,
-      site,
-      totalAmount,
-      orderId,
-      adminOrderLink,
-      orderDate,
-    });
+		const htmlContentAdmin = await newOrderAdminTemplate({
+			name,
+			email,
+			items,
+			site,
+			totalAmount,
+			orderId,
+			adminOrderLink,
+			orderDate,
+		});
 
-    // Create an array of promises to send emails in parallel
-    const emailPromises = [
-      new Email(user, site).sendEmailTemplate(htmlContentUser),
-      // sendBrevoCampaign({
-      //   subject: "Ja! Uw bestelling is succesvol geplaatst!",
-      //   senderName: "Benzobestellen",
-      //   senderEmail: process.env.BREVO_EMAIL,
-      //   htmlContent: htmlContent,
-      //   to: user?.email,
-      // }),
+		// Create an array of promises to send emails in parallel
+		const emailPromises = [
+			new Email(user, site).sendEmailTemplate(htmlContentUser),
+			// sendBrevoCampaign({
+			//   subject: "Ja! Uw bestelling is succesvol geplaatst!",
+			//   senderName: "Benzobestellen",
+			//   senderEmail: process.env.BREVO_EMAIL,
+			//   htmlContent: htmlContent,
+			//   to: user?.email,
+			// }),
 
-      ...admins
-        .filter((admin) => admin.email !== "admin@gmail.com")
-        .map(
-          (admin) =>
-            new Email(admin, site).sendEmailTemplate(
-              htmlContentAdmin,
-              "Nieuwe bestelling plaatsen bij Admin"
-            )
-          // sendBrevoCampaign({
-          //   subject: "Nieuwe bestelling plaatsen bij Admin",
-          //   senderName: "Benzobestellen",
-          //   senderEmail: process.env.BREVO_EMAIL,
-          //   htmlContent: htmlContent,
-          //   to: admin?.email,
-          // })
-        ),
-    ];
+			...admins
+				.filter((admin) => admin.email !== "admin@gmail.com")
+				.map(
+					(admin) =>
+						new Email(admin, site).sendEmailTemplate(
+							htmlContentAdmin,
+							"Nieuwe bestelling plaatsen bij Admin"
+						)
+					// sendBrevoCampaign({
+					//   subject: "Nieuwe bestelling plaatsen bij Admin",
+					//   senderName: "Benzobestellen",
+					//   senderEmail: process.env.BREVO_EMAIL,
+					//   htmlContent: htmlContent,
+					//   to: admin?.email,
+					// })
+				),
+		];
 
-    try {
-      // Wait for both emails to be sent
-      await Promise.all(emailPromises);
-      console.log("Emails sent successfully");
-    } catch (err) {
-      // Detailed error logging
-      console.error("Error sending emails:", err);
-      // Optional: Send failure notifications or handle retries
-    }
-  };
+		try {
+			// Wait for both emails to be sent
+			await Promise.all(emailPromises);
+		} catch (err) {
+			// Detailed error logging
+			console.error("Error sending emails:", err);
+			// Optional: Send failure notifications or handle retries
+		}
+	};
 
-  // Usage:
-  sendOrderEmail({
-    name,
-    email,
-    items,
-    site,
-    totalAmount,
-    orderId: order._id,
-    adminOrderLink,
-    orderDate: order.createdAt,
-    support_url,
-  });
+	// Usage:
+	sendOrderEmail({
+		name,
+		email,
+		items,
+		site,
+		totalAmount,
+		orderId: order._id,
+		adminOrderLink,
+		orderDate: order.createdAt,
+		support_url,
+	});
 
-  res.send({
-    status: true,
-    data: order,
-    message: "Order created successfully",
-  });
+	res.send({
+		status: true,
+		data: order,
+		message: "Order created successfully",
+	});
 };
 export const getAllViagraOrders = async (req, res) => {
-  const orders = await viagraOrderModel.find({}).sort({ createdAt: -1 });
-  if (!orders || orders.length === 0) {
-    return res.json({ status: false, message: "No Viagra orders found" });
-  }
-  res.json({ status: true, data: orders });
+	const orders = await viagraOrderModel.find({}).sort({ createdAt: -1 });
+	if (!orders || orders.length === 0) {
+		return res.json({ status: false, message: "No Viagra orders found" });
+	}
+	res.json({ status: true, data: orders });
 };
 export const getViagraOrderById = async (req, res) => {
-  const order = await viagraOrderModel.findById(req.params.id);
-  if (!order) {
-    return res.json({ status: false, message: "Viagra order not found" });
-  }
-  res.json({ status: true, data: order });
+	const order = await viagraOrderModel.findById(req.params.id);
+	if (!order) {
+		return res.json({ status: false, message: "Viagra order not found" });
+	}
+	res.json({ status: true, data: order });
 };
 export const getViagraOrderByCustomer = async (req, res) => {
-  const orders = await viagraOrderModel.find({ email: req.params.id }).sort({
-    createdAt: -1,
-  });
-  if (!orders || orders.length === 0) {
-    return res.json({
-      status: false,
-      message: "No Viagra orders found for this customer",
-    });
-  }
-  res.json({ status: true, data: orders });
+	const orders = await viagraOrderModel.find({ email: req.params.id }).sort({
+		createdAt: -1,
+	});
+	if (!orders || orders.length === 0) {
+		return res.json({
+			status: false,
+			message: "No Viagra orders found for this customer",
+		});
+	}
+	res.json({ status: true, data: orders });
 };
 export const updateViagraOrder = async (req, res) => {
-  const { id } = req.params;
-  const { orderStatus, paymentStatus, site } = req.body;
+	const { id } = req.params;
+	const { orderStatus, paymentStatus, site } = req.body;
 
-  // check if the order exists
-  const order = await viagraOrderModel.findById(id);
-  if (!order) {
-    return res.send({ status: false, message: "Viagra order not found" });
-  }
+	// check if the order exists
+	const order = await viagraOrderModel.findById(id);
+	if (!order) {
+		return res.send({ status: false, message: "Viagra order not found" });
+	}
 
-  order.orderStatus = orderStatus;
-  order.paymentStatus = paymentStatus;
-  const { firstName, lastName, email, items, totalAmount } = order;
-  const updatedOrder = await order.save();
+	order.orderStatus = orderStatus;
+	order.paymentStatus = paymentStatus;
+	const { firstName, lastName, email, items, totalAmount } = order;
+	const updatedOrder = await order.save();
 
-  const htmlContentUser = await updateOrderEmailTemplate({
-    firstName,
-    lastName,
-    email,
-    orderId: order._id,
-    status: orderStatus,
-    items,
-    totalAmount,
-  });
-  const user = {
-    email,
-  };
-  try {
-    await new Email(user, site).sendEmailTemplate(htmlContentUser);
-    // await sendBrevoCampaign({
-    //   subject: "Werk de bestelstatus bij",
-    //   senderName: "Benzobestellen",
-    //   senderEmail: process.env.BREVO_EMAIL,
-    //   htmlContent: htmlContent,
-    //   to: user?.email,
-    // });
-  } catch (err) {
-    console.log(err);
-  }
+	const htmlContentUser = await updateOrderEmailTemplate({
+		firstName,
+		lastName,
+		email,
+		orderId: order._id,
+		status: orderStatus,
+		items,
+		totalAmount,
+	});
+	const user = {
+		email,
+	};
+	try {
+		await new Email(user, site).sendEmailTemplate(htmlContentUser);
+		// await sendBrevoCampaign({
+		//   subject: "Werk de bestelstatus bij",
+		//   senderName: "Benzobestellen",
+		//   senderEmail: process.env.BREVO_EMAIL,
+		//   htmlContent: htmlContent,
+		//   to: user?.email,
+		// });
+	} catch (err) {
+		console.log(err);
+	}
 
-  res.status(200).send({
-    status: true,
-    data: updatedOrder,
-    message: "Viagra order updated successfully",
-  });
+	res.status(200).send({
+		status: true,
+		data: updatedOrder,
+		message: "Viagra order updated successfully",
+	});
 };
 
 export const deleteViagraOrder = async (req, res) => {
-  const orderId = req.params.id;
+	const orderId = req.params.id;
 
-  const order = await viagraOrderModel.findById(orderId);
-  if (!order) {
-    return res.json({ status: false, message: "Viagra order not found" });
-  }
+	const order = await viagraOrderModel.findById(orderId);
+	if (!order) {
+		return res.json({ status: false, message: "Viagra order not found" });
+	}
 
-  await viagraOrderModel.deleteOne({ _id: orderId });
-  res.json({ status: true, message: "Viagra order deleted successfully" });
+	await viagraOrderModel.deleteOne({ _id: orderId });
+	res.json({ status: true, message: "Viagra order deleted successfully" });
 };
 
 export const getDiscount = async (req, res) => {
-  try {
-    const { discountCode } = req.body;
+	try {
+		const { discountCode } = req.body;
 
-    if (!discountCode) {
-      return res.send({
-        success: false,
-        message: "invalid request body",
-      });
-    }
+		if (!discountCode) {
+			return res.send({
+				success: false,
+				message: "invalid request body",
+			});
+		}
 
-    // static discount code
-    const adminDiscount = "discount";
+		// static discount code
+		const adminDiscount = "discount";
 
-    if (discountCode !== adminDiscount) {
-      return res.send({
-        success: false,
-        message: "Kortingscode komt niet overeen",
-      });
-    }
+		if (discountCode !== adminDiscount) {
+			return res.send({
+				success: false,
+				message: "Kortingscode komt niet overeen",
+			});
+		}
 
-    // static discount
-    return res.send({
-      success: true,
-      discount: 10,
-    });
-  } catch (error) {
-    console.log(error);
-  }
+		// static discount
+		return res.send({
+			success: true,
+			discount: 10,
+		});
+	} catch (error) {
+		console.log(error);
+	}
 };

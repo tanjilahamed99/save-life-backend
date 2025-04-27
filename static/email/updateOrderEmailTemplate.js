@@ -1,16 +1,16 @@
 export const updateOrderEmailTemplate = async ({
-  firstName,
-  lastName,
-  email,
-  orderId,
-  status,
-  items = [],
-  totalAmount = 0,
+	firstName,
+	lastName,
+	email,
+	orderId,
+	status,
+	items = [],
+	totalAmount = 0,
 }) => {
-  const subject = 'Order Update - Order Status Changed';
-  const statusMessage = `Your order status has been updated to: ${status}.`;
+	const subject = "Bestellingsupdate - Bestelstatus Gewijzigd";
+	const statusMessage = `De status van uw bestelling is bijgewerkt naar: ${status}.`;
 
-  return `
+	return `
   <!DOCTYPE html>
   <html lang="nl">
     <head>
@@ -130,7 +130,6 @@ export const updateOrderEmailTemplate = async ({
     <body>
       <div class="email-container">
         <h1>${subject}</h1>
-        <h2>Bestelnummer: ${orderId}</h2>
 
         <div class="order-summary">
           <h3>Bestelstatus:</h3>
