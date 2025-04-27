@@ -406,6 +406,19 @@ export const orderUpdate = async (req, res) => {
     .send({ status: true, data: updatedOrder, message: "Order updated" });
 };
 
+export const deleteOrder = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.send({
+      success: false,
+      message: "order id required",
+    });
+  }
+  const result = await OrderModel.deleteOne({ _id: id });
+  res.status(200).send({ status: true, result, message: "Order deleted" });
+};
+
 // viagra
 export const createViagraOrder = async (req, res) => {
   const {
@@ -481,10 +494,7 @@ export const createViagraOrder = async (req, res) => {
 
     // Create an array of promises to send emails in parallel
     const emailPromises = [
-      new Email(user, site).sendEmailTemplate(
-        htmlContentUser,
-
-      ),
+      new Email(user, site).sendEmailTemplate(htmlContentUser),
       // sendBrevoCampaign({
       //   subject: "Ja! Uw bestelling is succesvol geplaatst!",
       //   senderName: "Benzobestellen",
@@ -495,11 +505,12 @@ export const createViagraOrder = async (req, res) => {
 
       ...admins
         .filter((admin) => admin.email !== "admin@gmail.com")
-        .map((admin) =>
-          new Email(admin, site).sendEmailTemplate(
-            htmlContentAdmin,
-            "Nieuwe bestelling plaatsen bij Admin"
-          )
+        .map(
+          (admin) =>
+            new Email(admin, site).sendEmailTemplate(
+              htmlContentAdmin,
+              "Nieuwe bestelling plaatsen bij Admin"
+            )
           // sendBrevoCampaign({
           //   subject: "Nieuwe bestelling plaatsen bij Admin",
           //   senderName: "Benzobestellen",
@@ -594,10 +605,7 @@ export const updateViagraOrder = async (req, res) => {
     email,
   };
   try {
-    await new Email(user, site).sendEmailTemplate(
-      htmlContentUser,
-
-    );
+    await new Email(user, site).sendEmailTemplate(htmlContentUser);
     // await sendBrevoCampaign({
     //   subject: "Werk de bestelstatus bij",
     //   senderName: "Benzobestellen",
