@@ -1,19 +1,13 @@
 import express from "express";
 import {
-  createCustomOrder,
-  createOrder,
-  createViagraOrder,
-  deleteOrder,
-  deleteViagraOrder,
-  getAllOrders,
-  getAllViagraOrders,
-  getDiscount,
-  getOrderByCustomer,
-  getOrderById,
-  getViagraOrderByCustomer,
-  getViagraOrderById,
-  orderUpdate,
-  updateViagraOrder,
+	createCustomOrder,
+	createOrder,
+	deleteOrder,
+	getAllOrders,
+	getDiscount,
+	getOrderByCustomer,
+	getOrderById,
+	orderUpdate,
 } from "../controllers/order.controller.js";
 
 const router = express.Router();
@@ -26,18 +20,5 @@ router.post("/create-custom", createCustomOrder);
 router.put("/:id", orderUpdate);
 router.delete("/delete/:id", deleteOrder);
 router.post("/discount", getDiscount);
-
-// viagra
-router.post("/create/viagra", createViagraOrder);
-
-router.get("/viagra/all", getAllViagraOrders);
-
-router.get("/viagra/:id", getViagraOrderById);
-
-router.get("/viagra/customer/:id", getViagraOrderByCustomer);
-
-router.put("/viagra/:id", updateViagraOrder);
-
-router.delete("/viagra/:id", deleteViagraOrder);
 
 export const orderRoutes = router;
