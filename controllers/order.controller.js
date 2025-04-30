@@ -15,6 +15,14 @@ export const getAllOrders = async (req, res) => {
 
 export const getOrderById = async (req, res) => {
 	// const order = await OrderModel.findById(req.params.id);
+
+	if (!req.params.id) {
+		return res.send({
+			message: 'orderid required',
+			success : false
+		})
+	}
+
 	const order = await OrderModel.findById({ _id: req.params.id });
 	if (!order) {
 		return res.json({ status: false, message: "Order not found" });
