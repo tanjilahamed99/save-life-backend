@@ -14,6 +14,7 @@ import { paymentRoute } from "./routes/payment.routes.js";
 import { productRoutes } from "./routes/product.routes.js";
 import { newsletterRoute } from "./routes/newsletter.route.js";
 import { ticketRoutes } from "./routes/ticket.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 dotenv.config();
 
@@ -79,6 +80,9 @@ app.use("/api/v1/newsletter", newsletterRoute);
 // tickets
 app.use("/api/v1/tickets", ticketRoutes);
 
+// notifications
+app.use("/api/v1/notifications", notificationRoutes);
+
 const existAdmin = await AdminModel.findOne({ email: "admin@gmail.com" });
 // Hash password
 const salt = await bcrypt.genSalt(10);
@@ -90,13 +94,6 @@ if (!existAdmin) {
 		password: hashedPassword,
 	});
 }
-
-// if (!existViagraAdmin) {
-// 	await viagraAdminModel.create({
-// 		email: "admin@gmail.com",
-// 		password: hashedPassword,
-// 	});
-// }
 
 // Error handling
 app.use((err, req, res, next) => {
