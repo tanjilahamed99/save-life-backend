@@ -5,7 +5,6 @@ const emailHistorySchema = new mongoose.Schema(
 		order: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Order",
-			required: true,
 		},
 		subject: {
 			type: String,
@@ -27,6 +26,7 @@ const emailHistorySchema = new mongoose.Schema(
 			type: String,
 			enum: [
 				"payment_request",
+				"wallet_payment_request",
 				"order_confirmation",
 				"shipping_update",
 				"order_delivered",

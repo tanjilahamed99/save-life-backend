@@ -15,6 +15,7 @@ import { productRoutes } from "./routes/product.routes.js";
 import { newsletterRoute } from "./routes/newsletter.route.js";
 import { ticketRoutes } from "./routes/ticket.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import walletRoutes from "./routes/wallet.routes.js";
 
 dotenv.config();
 
@@ -82,6 +83,9 @@ app.use("/api/v1/tickets", ticketRoutes);
 
 // notifications
 app.use("/api/v1/notifications", notificationRoutes);
+
+// wallet routes
+app.use("/api/v1/wallet", walletRoutes);
 
 const existAdmin = await AdminModel.findOne({ email: "admin@gmail.com" });
 // Hash password
