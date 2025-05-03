@@ -66,7 +66,7 @@ export const getUserNotifications = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error retrieving notifications:", error);
-		return res.status(500).json({
+		return res.status(201).json({
 			success: false,
 			message: "Failed to retrieve notifications",
 			error: error.message,

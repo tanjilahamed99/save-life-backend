@@ -156,20 +156,14 @@ export const paymentRequest = async (req, res) => {
 		expiry_date,
 		payment_url,
 		name: order.firstName + " " + order.lastName,
-		order_url:
-			site === "https://benzobestellen.com"
-				? "https://benzobestellen.com/my-account"
-				: "https://zolpidem-kopen.net/my-account",
+		order_url: "https://benzobestellen.com/dashboard/orders",
 		orderDate: order.createdAt,
 		site,
 		order_items: order.items,
 		shipping: order?.shipping,
 		subtotal: order?.subtotal,
 		total: order.totalAmount,
-		support_url:
-			site === "https://benzobestellen.com"
-				? "https://benzobestellen.com/contact"
-				: "https://zolpidem-kopen.net/contact",
+		support_url: "https://benzobestellen.com/contact",
 	});
 
 	try {
@@ -177,10 +171,7 @@ export const paymentRequest = async (req, res) => {
 		await new Email(user, site).sendEmailTemplate(htmlContent, subject);
 
 		// Save to email history
-		const sender =
-			site === "https://zolpidem-kopen.net"
-				? "contact@zolpidem-kopen.net"
-				: "contact@benzobestellen.com";
+		const sender = "contact@benzobestellen.com";
 
 		await saveEmailToHistory(
 			orderId,
