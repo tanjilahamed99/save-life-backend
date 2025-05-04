@@ -5,6 +5,7 @@ import { TransactionModel } from "../models/transaction.model.js";
 import { UserModel } from "../models/user.model.js";
 import { walletPaymentRequestEmailTemplate } from "../static/email/paymentRequestEmailTemplatea.js";
 import { EmailHistoryModel } from "../models/email-history.model.js";
+import { OrderModel } from "../models/order.model.js";
 
 const saveEmailToHistory = async (
 	transactionId,
@@ -359,8 +360,9 @@ export const payOrderFromWallet = async (req, res) => {
 			});
 		}
 
-		// Create transaction
-		await TransactionModel.create(
+		// Create transaction with reference number
+		const reference = `ORD-${order._id}`;
+		const transaction = await TransactionModel.create(
 			[
 				{
 					walletId: wallet._id,
@@ -371,19 +373,22 @@ export const payOrderFromWallet = async (req, res) => {
 					status: "completed",
 					orderId: order._id,
 					description: `Payment for order #${order._id}`,
-					reference: `ORD-${order._id}`,
+					reference: reference,
 				},
 			],
 			{ session }
 		);
 
 		// Update wallet balance
+		const previousBalance = wallet.balance;
 		wallet.balance -= orderAmount;
 		await wallet.save({ session });
 
 		// Update order payment status
 		order.paymentStatus = "paid";
 		order.paymentMethod = "wallet";
+		order.paymentReference = reference;
+		order.paymentDate = new Date();
 		await order.save({ session });
 
 		await session.commitTransaction();
@@ -392,7 +397,14 @@ export const payOrderFromWallet = async (req, res) => {
 		return res.status(200).json({
 			status: true,
 			message: "Payment successful",
-			data: { order, wallet },
+			data: {
+				order,
+				wallet,
+				transaction: transaction[0],
+				reference,
+				previousBalance,
+				newBalance: wallet.balance,
+			},
 		});
 	} catch (error) {
 		await session.abortTransaction();
