@@ -7,6 +7,8 @@ import { generateOtpEmail } from "../static/email/otp.template.js";
 import { welcomeEmailTemplate } from "../static/email/welcomeEmailTemplate.js";
 import { sendBrevoCampaign } from "../lib/email/brevoEmail.js";
 import { passwordChangeEmailTemplate } from "../static/email/passwordChangeEmailTemplate.js";
+import { WalletsModel } from "../models/wallets.model.js";
+import { TransactionModel } from "../models/transaction.model.js";
 
 // admin login
 export const adminLogin = async (req, res) => {
@@ -110,6 +112,29 @@ export const register = async (req, res) => {
 					htmlContent,
 					`Welkom bij ${site}`
 				);
+				// Create wallet for the new user with 5 euro bonus
+				const wallet = await WalletsModel.create([
+					{
+						userId: user._id,
+						email: user.email,
+						balance: 5, // 5 euro bonus
+					},
+				]);
+
+				// Create a transaction record for the bonus
+				await TransactionModel.create([
+					{
+						walletId: wallet[0]._id,
+						userId: user._id,
+						email: user.email,
+						type: "deposit",
+						amount: 5,
+						status: "completed",
+						description: "Welkomstbonus voor nieuwe registratie",
+						reference: `WELCOME-${Date.now()}`,
+					},
+				]);
+
 				// await sendBrevoCampaign({
 				//   subject: "Welkom bij Benzobestellen!",
 				//   senderName: "Benzobestellen",
