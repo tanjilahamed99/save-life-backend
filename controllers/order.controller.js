@@ -18,9 +18,9 @@ export const getOrderById = async (req, res) => {
 
 	if (!req.params.id) {
 		return res.send({
-			message: 'orderid required',
-			success : false
-		})
+			message: "orderid required",
+			success: false,
+		});
 	}
 
 	const order = await OrderModel.findById({ _id: req.params.id });
@@ -179,7 +179,7 @@ export const createOrder = async (req, res) => {
 
 	// Usage:
 	sendOrderEmail({
-		name: userData.name || fullName,
+		name: userData?.name || fullName,
 		email,
 		items,
 		site,

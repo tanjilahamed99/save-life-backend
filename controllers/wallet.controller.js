@@ -5,6 +5,7 @@ import { TransactionModel } from "../models/transaction.model.js";
 import { UserModel } from "../models/user.model.js";
 import { walletPaymentRequestEmailTemplate } from "../static/email/paymentRequestEmailTemplatea.js";
 import { EmailHistoryModel } from "../models/email-history.model.js";
+import { OrderModel } from "../models/order.model.js";
 
 const saveEmailToHistory = async (
   transactionId,
@@ -311,97 +312,108 @@ export const completeDeposit = async (req, res) => {
 
 // Pay for order using wallet balance
 export const payOrderFromWallet = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+	const session = await mongoose.startSession();
+	session.startTransaction();
 
-  try {
-    const { orderId, email } = req.body;
+	try {
+		const { orderId, email } = req.body;
 
-    if (!orderId || !email) {
-      return res
-        .status(400)
-        .json({ status: false, message: "Order ID and email are required" });
-    }
+		if (!orderId || !email) {
+			return res
+				.status(400)
+				.json({ status: false, message: "Order ID and email are required" });
+		}
 
-    const order = await OrderModel.findById(orderId).session(session);
+		const order = await OrderModel.findById(orderId).session(session);
 
-    if (!order) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Order not found" });
-    }
+		if (!order) {
+			return res
+				.status(404)
+				.json({ status: false, message: "Order not found" });
+		}
 
-    if (order.paymentStatus === "paid") {
-      return res
-        .status(400)
-        .json({ status: false, message: "Order is already paid" });
-    }
+		if (order.paymentStatus === "paid") {
+			return res
+				.status(400)
+				.json({ status: false, message: "Order is already paid" });
+		}
 
-    const wallet = await WalletsModel.findOne({ email }).session(session);
+		const wallet = await WalletsModel.findOne({ email }).session(session);
 
-    if (!wallet) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Wallet not found" });
-    }
+		if (!wallet) {
+			return res
+				.status(404)
+				.json({ status: false, message: "Wallet not found" });
+		}
 
-    const orderAmount = order.totalAmount;
+		const orderAmount = order.totalAmount;
 
-    if (wallet.balance < orderAmount) {
-      return res.status(400).json({
-        status: false,
-        message: "Insufficient balance",
-        data: {
-          balance: wallet.balance,
-          required: orderAmount,
-          missing: orderAmount - wallet.balance,
-        },
-      });
-    }
+		if (wallet.balance < orderAmount) {
+			return res.status(400).json({
+				status: false,
+				message: "Insufficient balance",
+				data: {
+					balance: wallet.balance,
+					required: orderAmount,
+					missing: orderAmount - wallet.balance,
+				},
+			});
+		}
 
-    // Create transaction
-    await TransactionModel.create(
-      [
-        {
-          walletId: wallet._id,
-          userId: wallet.userId,
-          email: wallet.email,
-          type: "order_payment",
-          amount: -orderAmount,
-          status: "completed",
-          orderId: order._id,
-          description: `Payment for order #${order._id}`,
-          reference: `ORD-${order._id}`,
-        },
-      ],
-      { session }
-    );
+		// Create transaction with reference number
+		const reference = `ORD-${order._id}`;
+		const transaction = await TransactionModel.create(
+			[
+				{
+					walletId: wallet._id,
+					userId: wallet.userId,
+					email: wallet.email,
+					type: "order_payment",
+					amount: -orderAmount,
+					status: "completed",
+					orderId: order._id,
+					description: `Payment for order #${order._id}`,
+					reference: reference,
+				},
+			],
+			{ session }
+		);
 
-    // Update wallet balance
-    wallet.balance -= orderAmount;
-    await wallet.save({ session });
+		// Update wallet balance
+		const previousBalance = wallet.balance;
+		wallet.balance -= orderAmount;
+		await wallet.save({ session });
 
-    // Update order payment status
-    order.paymentStatus = "paid";
-    order.paymentMethod = "wallet";
-    await order.save({ session });
+		// Update order payment status
+		order.paymentStatus = "paid";
+		order.paymentMethod = "wallet";
+		order.paymentReference = reference;
+		order.paymentDate = new Date();
+		await order.save({ session });
 
-    await session.commitTransaction();
-    session.endSession();
+		await session.commitTransaction();
+		session.endSession();
 
-    return res.status(200).json({
-      status: true,
-      message: "Payment successful",
-      data: { order, wallet },
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error("Error paying from wallet:", error);
-    return res
-      .status(500)
-      .json({ status: false, message: "Server error", error: error.message });
-  }
+		return res.status(200).json({
+			status: true,
+			message: "Payment successful",
+			data: {
+				order,
+				wallet,
+				transaction: transaction[0],
+				reference,
+				previousBalance,
+				newBalance: wallet.balance,
+			},
+		});
+	} catch (error) {
+		await session.abortTransaction();
+		session.endSession();
+		console.error("Error paying from wallet:", error);
+		return res
+			.status(500)
+			.json({ status: false, message: "Server error", error: error.message });
+	}
 };
 
 // Get transaction history
