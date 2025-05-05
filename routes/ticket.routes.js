@@ -24,7 +24,7 @@ router.get("/user/:userId", getTicketsByUser);
 
 // Get ticket by ID
 router.get("/:id", getTicketById);
-
+ 
 // Update ticket status (admin)
 router.put("/status/:id", updateTicketStatus);
 

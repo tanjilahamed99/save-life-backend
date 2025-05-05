@@ -432,7 +432,7 @@ export const getDiscount = async (req, res) => {
 		}
 
 		// static discount code
-		const adminDiscount = "discount";
+		const adminDiscount = "Welkom10";
 
 		if (discountCode !== adminDiscount) {
 			return res.send({
