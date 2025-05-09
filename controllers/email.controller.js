@@ -11,6 +11,10 @@ import { updateOrderEmailTemplate } from "../static/email/updateOrderEmailTempla
 import { welcomeEmailTemplate } from "../static/email/welcomeEmailTemplate.js";
 import dotenv from "dotenv";
 
+import {
+	orderEditEmailTemplate,
+	orderEditAdminEmailTemplate,
+} from "../templates/orderEditEmailTemplate.js";
 dotenv.config();
 
 // Helper function to save email to history
@@ -98,7 +102,7 @@ export const getCustomerEmailHistory = async (req, res) => {
 };
 
 export const paymentRequest = async (req, res) => {
-	const { orderId, expiry_date, payment_url, date } = req.body;
+	const { orderId, payment_url, date } = req.body;
 
 	// Check if order ID is provided
 	if (!orderId) {
@@ -119,7 +123,6 @@ export const paymentRequest = async (req, res) => {
 	if (order?.sendEmail?.length > 0) {
 		sendEmail = [
 			{
-				expiry_date,
 				payment_url,
 				date,
 			},
@@ -128,7 +131,6 @@ export const paymentRequest = async (req, res) => {
 	} else {
 		sendEmail = [
 			{
-				expiry_date,
 				payment_url,
 				date,
 			},
@@ -153,7 +155,6 @@ export const paymentRequest = async (req, res) => {
 	const subject = "Betalingsverzoek!";
 
 	const htmlContent = await paymentRequestEmailTemplate({
-		expiry_date,
 		payment_url,
 		name: order.firstName + " " + order.lastName,
 		order_url: "https://benzobestellen.com/dashboard/orders",
@@ -478,4 +479,131 @@ export const orderPlaceEmail = async (req, res) => {
 	});
 
 	res.send({ status: true, message: "Email sent" });
+};
+
+/**
+ * Send email to customer when their order is edited
+ */
+export const sendOrderEditEmail = async (req, res) => {
+	try {
+		const {
+			orderId,
+			firstName,
+			lastName,
+			email,
+			changes,
+			items,
+			totalAmount,
+			site = "benzobestellen.com",
+		} = req.body;
+
+		if (!orderId || !email || !changes) {
+			return res.status(400).json({
+				status: false,
+				message: "Missing required fields",
+			});
+		}
+
+		const orderUrl = `https://${site}/dashboard/orders/${orderId}`;
+
+		// Generate email content
+		const emailContent = await orderEditEmailTemplate({
+			firstName,
+			lastName,
+			email,
+			orderId,
+			changes,
+			items,
+			totalAmount,
+			orderUrl,
+			site,
+		});
+
+		// Send email
+		const emailSent = await new Email(email, site).sendEmailTemplate(
+			emailContent,
+			"Order Edit"
+		);
+
+		if (!emailSent) {
+			return res.status(500).json({
+				status: false,
+				message: "Failed to send email",
+			});
+		}
+
+		return res.status(200).json({
+			status: true,
+			message: "Order edit email sent successfully",
+		});
+	} catch (error) {
+		console.error("Error sending order edit email:", error);
+		return res.status(500).json({
+			status: false,
+			message: "Server error",
+			error: error.message,
+		});
+	}
+};
+
+/**
+ * Send email to admin when a customer edits their order
+ */
+export const sendOrderEditAdminEmail = async (req, res) => {
+	try {
+		const {
+			orderId,
+			customerName,
+			customerEmail,
+			changes,
+			totalAmount,
+			adminEmail,
+			site = "benzobestellen.com",
+		} = req.body;
+
+		if (!orderId || !customerEmail || !changes || !adminEmail) {
+			return res.status(400).json({
+				status: false,
+				message: "Missing required fields",
+			});
+		}
+
+		const adminOrderLink = `https://${site}/admin/orders/${orderId}`;
+
+		// Generate email content
+		const emailContent = await orderEditAdminEmailTemplate({
+			customerName,
+			customerEmail,
+			orderId,
+			changes,
+			totalAmount,
+			adminOrderLink,
+			site,
+		});
+
+		// Send email
+		const emailSent = await new Email(adminEmail, site).sendEmailTemplate(
+			emailContent,
+			"Order Edit"
+		);
+
+		if (!emailSent) {
+			return res.status(500).json({
+				status: false,
+				message: "Failed to send email",
+			});
+		}
+
+		return res.status(200).json({
+			status: true,
+			message: "Admin notification email sent successfully",
+		});
+	} catch (error) {
+		console.error("Error sending admin notification email:", error);
+		return res.status(500).json({
+			status: false,
+			message: "Server error",
+			error: error.message,
+		});
+	}
 };
