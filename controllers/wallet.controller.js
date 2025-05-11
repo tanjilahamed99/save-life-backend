@@ -312,56 +312,62 @@ export const completeDeposit = async (req, res) => {
 
 // Pay for order using wallet balance
 export const payOrderFromWallet = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+	const session = await mongoose.startSession();
+	session.startTransaction();
 
-  try {
-    const { orderId, email } = req.body;
+	try {
+		const { orderId, email } = req.body;
 
-    if (!orderId || !email) {
-      return res
-        .status(400)
-        .json({ status: false, message: "Order ID and email are required" });
-    }
+		if (!orderId || !email) {
+			return res
+				.status(400)
+				.json({ status: false, message: "Order ID and email are required" });
+		}
 
-    const order = await OrderModel.findById(orderId).session(session);
+		const order = await OrderModel.findById(orderId).session(session);
 
-    if (!order) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Order not found" });
-    }
+		if (!order) {
+			return res
+				.status(404)
+				.json({ status: false, message: "Order not found" });
+		}
 
-    if (order.paymentStatus === "paid") {
-      return res
-        .status(400)
-        .json({ status: false, message: "Order is already paid" });
-    }
+		if (order.paymentStatus === "paid") {
+			return res
+				.status(400)
+				.json({ status: false, message: "Order is already paid" });
+		}
 
-    const wallet = await WalletsModel.findOne({ email }).session(session);
+		const wallet = await WalletsModel.findOne({ email }).session(session);
 
-    if (!wallet) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Wallet not found" });
-    }
+		if (!wallet) {
+			return res
+				.status(404)
+				.json({ status: false, message: "Wallet not found" });
+		}
 
-    const orderAmount = order.totalAmount;
+		const orderAmount = order.totalAmount;
 
-    if (wallet.balance < orderAmount) {
-      return res.status(400).json({
-        status: false,
-        message: "Insufficient balance",
-        data: {
-          balance: wallet.balance,
-          required: orderAmount,
-          missing: orderAmount - wallet.balance,
-        },
-      });
-    }
+		if (wallet.balance < orderAmount) {
+			return res.status(400).json({
+				status: false,
+				message: "Insufficient balance",
+				data: {
+					balance: wallet.balance,
+					required: orderAmount,
+					missing: orderAmount - wallet.balance,
+				},
+			});
+		}
 
+<<<<<<< HEAD
 		// Create transaction
 		await TransactionModel.create(
+=======
+		// Create transaction with reference number
+		const reference = `ORD-${order._id}`;
+		const transaction = await TransactionModel.create(
+>>>>>>> cdcd23474fa3005075ccbca2939358ce073c2a56
 			[
 				{
 					walletId: wallet._id,
@@ -387,8 +393,13 @@ export const payOrderFromWallet = async (req, res) => {
 		order.paymentMethod = "wallet";
 		await order.save({ session });
 
+<<<<<<< HEAD
     await session.commitTransaction();
     session.endSession();
+=======
+		await session.commitTransaction();
+		session.endSession();
+>>>>>>> cdcd23474fa3005075ccbca2939358ce073c2a56
 
 		return res.status(200).json({
 			status: true,
