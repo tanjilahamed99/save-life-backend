@@ -323,8 +323,17 @@ export const createCustomOrder = async (req, res) => {
 export const orderUpdate = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { items, address, city, postalCode, country, notes, phone } =
-			req.body;
+		const {
+			items,
+			address,
+			city,
+			postalCode,
+			country,
+			notes,
+			phone,
+			orderStatus,
+			paymentStatus,
+		} = req.body;
 
 		console.log("Received update request for order:", id);
 		console.log("Update data:", req.body);
@@ -375,25 +384,6 @@ export const orderUpdate = async (req, res) => {
 					message: "Cannot modify items for orders that have already been paid",
 				});
 			}
-
-			// Validate items structure
-			const validItems = items.every(
-				(item) =>
-					item.id &&
-					item.name &&
-					typeof item.price === "number" &&
-					typeof item.quantity === "number" &&
-					item.quantity > 0
-			);
-			console.log(validItems);
-
-			// if (!validItems) {
-			// 	console.log("Invalid items structure");
-			// 	return res.status(400).json({
-			// 		status: false,
-			// 		message: "Invalid items structure",
-			// 	});
-			// }
 
 			updateData.items = items;
 			changes.items = true;
@@ -459,13 +449,18 @@ export const orderUpdate = async (req, res) => {
 			console.log("Updated notes");
 		}
 
-		// If nothing was changed
-		if (Object.keys(changes).length === 0) {
-			console.log("No changes were made to the order");
-			return res.status(400).json({
-				status: false,
-				message: "No changes were made to the order",
-			});
+		// update order status if provided
+		if (orderStatus) {
+			updateData.orderStatus = orderStatus;
+			changes.orderStatus = true;
+			console.log("Updated order status");
+		}
+
+		// update payment status if provided
+		if (paymentStatus) {
+			updateData.paymentStatus = paymentStatus;
+			changes.paymentStatus = true;
+			console.log("Updated payment status");
 		}
 
 		console.log("Updating order with data:", updateData);

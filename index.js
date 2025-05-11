@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import bcrypt from "bcryptjs";
 import bodyParser from "body-parser";
 import winston from "winston";
 import dotenv from "dotenv";
@@ -9,7 +8,6 @@ import { orderRoutes } from "./routes/order.routes.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { userRoutes } from "./routes/user.routes.js";
 import { emailRoutes } from "./routes/email.routes.js";
-import { AdminModel } from "./models/admin.model.js";
 import { paymentRoute } from "./routes/payment.routes.js";
 import { productRoutes } from "./routes/product.routes.js";
 import { newsletterRoute } from "./routes/newsletter.route.js";
@@ -30,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Cors
 app.use(cors());
+
 // app.use(
 // 	cors({
 // 		origin: [
@@ -86,18 +85,6 @@ app.use("/api/v1/notifications", notificationRoutes);
 
 // wallet routes
 app.use("/api/v1/wallet", walletRoutes);
-
-const existAdmin = await AdminModel.findOne({ email: "admin@gmail.com" });
-// Hash password
-const salt = await bcrypt.genSalt(10);
-const hashedPassword = await bcrypt.hash("admin1234@", salt);
-if (!existAdmin) {
-	await AdminModel.create({
-		name: "Admin",
-		email: "admin@gmail.com",
-		password: hashedPassword,
-	});
-}
 
 // Error handling
 app.use((err, req, res, next) => {
