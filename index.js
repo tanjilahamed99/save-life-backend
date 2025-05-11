@@ -14,6 +14,7 @@ import { newsletterRoute } from "./routes/newsletter.route.js";
 import { ticketRoutes } from "./routes/ticket.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import walletRoutes from "./routes/wallet.routes.js";
+import { discountRoutes } from "./routes/discount.routes.js";
 
 dotenv.config();
 
@@ -47,9 +48,9 @@ app.options("*", cors());
 
 // Logger setup
 winston.add(
-	new winston.transports.Console({
-		format: winston.format.simple(),
-	})
+  new winston.transports.Console({
+    format: winston.format.simple(),
+  })
 );
 
 app.get("/", (req, res) => res.send("Medicine Store API"));
@@ -86,10 +87,12 @@ app.use("/api/v1/notifications", notificationRoutes);
 // wallet routes
 app.use("/api/v1/wallet", walletRoutes);
 
+app.use("/api/v1/discount", discountRoutes);
+
 // Error handling
 app.use((err, req, res, next) => {
-	winston.error(err.message);
-	res.status(201).send("Something went wrong");
+  winston.error(err.message);
+  res.status(201).send("Something went wrong");
 });
 
 // 404 Route
