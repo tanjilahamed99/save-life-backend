@@ -11,6 +11,8 @@ import {
 	paymentRequestEmail,
 	sendWelcomeEmail,
 	updateOrderEmail,
+	sendOrderEditEmail,
+	sendOrderEditAdminEmail,
 } from "../controllers/email.controller.js";
 
 const router = express.Router();
@@ -28,5 +30,8 @@ router.post("/payment-request-email", paymentRequestEmail);
 router.post("/order-place-email", orderPlaceEmail);
 router.post("/otp-email", otpEmail);
 router.post("/update-order-email", updateOrderEmail);
+
+router.post("/order-edit-email", sendOrderEditEmail);
+router.post("/order-edit-admin-email", sendOrderEditAdminEmail);
 
 export const emailRoutes = router;

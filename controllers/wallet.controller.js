@@ -5,6 +5,7 @@ import { TransactionModel } from "../models/transaction.model.js";
 import { UserModel } from "../models/user.model.js";
 import { walletPaymentRequestEmailTemplate } from "../static/email/paymentRequestEmailTemplatea.js";
 import { EmailHistoryModel } from "../models/email-history.model.js";
+import { OrderModel } from "../models/order.model.js";
 
 const saveEmailToHistory = async (
   transactionId,
@@ -359,49 +360,49 @@ export const payOrderFromWallet = async (req, res) => {
       });
     }
 
-    // Create transaction
-    await TransactionModel.create(
-      [
-        {
-          walletId: wallet._id,
-          userId: wallet.userId,
-          email: wallet.email,
-          type: "order_payment",
-          amount: -orderAmount,
-          status: "completed",
-          orderId: order._id,
-          description: `Payment for order #${order._id}`,
-          reference: `ORD-${order._id}`,
-        },
-      ],
-      { session }
-    );
+		// Create transaction
+		await TransactionModel.create(
+			[
+				{
+					walletId: wallet._id,
+					userId: wallet.userId,
+					email: wallet.email,
+					type: "order_payment",
+					amount: -orderAmount,
+					status: "completed",
+					orderId: order._id,
+					description: `Payment for order #${order._id}`,
+					reference: `ORD-${order._id}`,
+				},
+			],
+			{ session }
+		);
 
-    // Update wallet balance
-    wallet.balance -= orderAmount;
-    await wallet.save({ session });
+		// Update wallet balance
+		wallet.balance -= orderAmount;
+		await wallet.save({ session });
 
-    // Update order payment status
-    order.paymentStatus = "paid";
-    order.paymentMethod = "wallet";
-    await order.save({ session });
+		// Update order payment status
+		order.paymentStatus = "paid";
+		order.paymentMethod = "wallet";
+		await order.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
-    return res.status(200).json({
-      status: true,
-      message: "Payment successful",
-      data: { order, wallet },
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error("Error paying from wallet:", error);
-    return res
-      .status(500)
-      .json({ status: false, message: "Server error", error: error.message });
-  }
+		return res.status(200).json({
+			status: true,
+			message: "Payment successful",
+			data: { order, wallet },
+		});
+	} catch (error) {
+		await session.abortTransaction();
+		session.endSession();
+		console.error("Error paying from wallet:", error);
+		return res
+			.status(500)
+			.json({ status: false, message: "Server error", error: error.message });
+	}
 };
 
 // Get transaction history
