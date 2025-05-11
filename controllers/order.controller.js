@@ -8,6 +8,7 @@ import { OrderEditHistoryModel } from "../models/order-edit-history.model.js";
 import mongoose from "mongoose";
 import { NotificationModel } from "../models/notification.model.js";
 import fetch from "node-fetch";
+import { DiscountModel } from "../models/discount.model.js";
 
 export const getAllOrders = async (req, res) => {
 	const orders = await OrderModel.find({}).sort({ createdAt: -1 });
@@ -619,20 +620,26 @@ export const getDiscount = async (req, res) => {
 			});
 		}
 
-		// static discount code
-		const adminDiscount = "Welkom10";
-
-		if (discountCode !== adminDiscount) {
+		// find Discount
+		const findDiscount = await DiscountModel.findOne({ discountCode })
+		if (!findDiscount) {
 			return res.send({
 				success: false,
 				message: "Kortingscode komt niet overeen",
 			});
 		}
+		if (!findDiscount.active) {
+			return res.send({
+				success: false,
+				message : 'Kortingscode uitgeschakeld'
+			})
+		}
+ 
 
 		// static discount
 		return res.send({
 			success: true,
-			discount: 10,
+			discount: findDiscount?.discountPresentence,
 		});
 	} catch (error) {
 		console.log(error);
